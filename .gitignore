@@ -39,6 +39,9 @@ yarn-error.*
 
 app-example
 
+#workspace
+.vscode/
+
 # generated native folders
 /ios
 /android
