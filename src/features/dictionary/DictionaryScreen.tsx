@@ -24,7 +24,9 @@ export default function DictionaryScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
-      <Text style={styles.heading}>Dictionary</Text>
+      <Text className="text-amber-500" style={styles.heading}>
+        Dictionary
+      </Text>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Kanji</Text>
@@ -49,7 +51,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   heading: {
-    color: "#111827",
+    // color: "#111827",
     fontSize: 28,
     fontWeight: "800",
   },
