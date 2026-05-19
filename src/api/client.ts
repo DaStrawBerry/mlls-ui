@@ -1,19 +1,41 @@
 import { ENV } from "@/config/env";
 
+export type PageResponse<T> = {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+};
+
 export type ApiListResponse<T> = T[] | { content?: T[] };
 
 export function toApiList<T>(data: ApiListResponse<T>): T[] {
-  return Array.isArray(data) ? data : data.content ?? [];
+  return Array.isArray(data) ? data : (data.content ?? []);
 }
 
-export async function apiFetch<T = unknown>(
+export async function apiFetch<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(`${ENV.API_URL}${path}`, init);
+  const response = await fetch(`${ENV.API_URL}${path}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+    ...init,
+  });
 
   if (!response.ok) {
-    throw new Error("API error");
+    let message = "API error";
+
+    try {
+      const errorData = await response.json();
+      message = errorData.message ?? message;
+    } catch {}
+
+    throw new Error(message);
   }
 
   return response.json() as Promise<T>;

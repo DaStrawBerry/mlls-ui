@@ -14,6 +14,7 @@ export default function TabsLayout() {
         name="dictionary"
         options={{
           title: "Dictionary",
+          // headerShown: false,
         }}
       />
       <Tabs.Screen
