@@ -3,12 +3,12 @@ import {
   LanguageCard,
   VocabCard,
 } from "@/features/dictionary/components/cards/DictionaryCard";
+import { useKanjiSearch } from "@/features/dictionary/hooks/useKanji";
+import { useLanguageSearch } from "@/features/dictionary/hooks/useLanguage";
 import type { SearchAllParams } from "@/features/dictionary/types/japanese";
 import type { SearchKanjiParams } from "@/features/dictionary/types/kanji";
 import type { SearchVocabParams } from "@/features/dictionary/types/vocab";
-import { useKanjiSearch } from "@/hooks/useKanji";
-import { useLanguageSearch } from "@/hooks/useLanguage";
-import { useVocabSearch } from "@/hooks/useVocab";
+import { useVocabSearch } from "@/features/dictionary/hooks/useVocab";
 import { Link } from "expo-router";
 import type { ReactElement } from "react";
 import {

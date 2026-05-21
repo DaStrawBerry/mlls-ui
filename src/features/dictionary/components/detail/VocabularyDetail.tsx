@@ -2,9 +2,10 @@ import { useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
 
 import { CenteredMessage } from "@/components/ui/CenteredMessage";
-import { useVocabDetail } from "@/hooks/useVocab";
 import { Pill } from "@/components/ui/Pill";
 import { DetailLinkItem } from "@/features/dictionary/components/cards/DetailLinkItem";
+import { EditBtn } from "@/features/dictionary/components/edit/EditBtn";
+import { useVocabDetail } from "@/features/dictionary/hooks/useVocab";
 import { LanguageSection } from "./LanguageSection";
 import { LinkSection } from "./LinkSection";
 import { TagList } from "./TagList";
@@ -29,6 +30,9 @@ export function VocabularyDetail({ id }: VocabularyDetailProps) {
     <ScrollView className="flex-1 bg-gray-50 px-4">
       <View className="py-4">
         <View className="rounded-2xl bg-white p-6">
+          <View>
+            <EditBtn id={id} router={router} type="VOCABULARY" />
+          </View>
           <Text className="text-center text-5xl font-bold text-gray-900">
             {vocab.writing}
           </Text>

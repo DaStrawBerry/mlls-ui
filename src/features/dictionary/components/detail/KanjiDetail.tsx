@@ -1,11 +1,12 @@
 import { useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
 
-import { useKanjiDetail } from "@/hooks/useKanji";
+import { useKanjiDetail } from "@/features/dictionary/hooks/useKanji";
 
 import { CenteredMessage } from "@/components/ui/CenteredMessage";
-import { Pill } from "../../../../components/ui/Pill";
-import { DetailLinkItem } from "../cards/DetailLinkItem";
+import { Pill } from "@/components/ui/Pill";
+import { DetailLinkItem } from "@/features/dictionary/components/cards/DetailLinkItem";
+import { EditBtn } from "@/features/dictionary/components/edit/EditBtn";
 import { LanguageSection } from "./LanguageSection";
 import { LinkSection } from "./LinkSection";
 import { PronounceSection } from "./PronounceSection";
@@ -29,6 +30,9 @@ export function KanjiDetail({ id }: KanjiDetailProps) {
     <ScrollView className="flex-1 bg-gray-50 px-4">
       <View className="py-4">
         <View className="rounded-2xl bg-white p-6">
+          <View>
+            <EditBtn id={id} router={router} type="KANJI" />
+          </View>
           <Text className="text-center text-7xl font-bold text-gray-900">
             {kanji.writing}
           </Text>

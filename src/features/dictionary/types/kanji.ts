@@ -1,4 +1,4 @@
-import { LanguageResponse, SearchAllParams } from "./japanese";
+import { JpLevel, LanguageResponse, SearchAllParams } from "./japanese";
 
 export interface KanjiComponentResponse {
   id: string;
@@ -32,3 +32,31 @@ export interface SearchKanjiParams extends SearchAllParams {
   onyomi?: string;
   sino?: string;
 }
+
+export type KanjiComponentRequest = {
+  writing: string;
+  meaning?: string;
+  sino?: string;
+};
+
+export type KanjiPronounceRequest = {
+  pronounce: string;
+  examples: {
+    writing: string;
+    reading?: string;
+    meaning?: string;
+  }[];
+};
+
+export type KanjiRequest = {
+  tags: string[];
+  level?: JpLevel;
+  writing: string;
+  meaning: string;
+  sino?: string;
+  stroke?: number;
+  note?: string;
+  kunyomi: KanjiPronounceRequest[];
+  onyomi: KanjiPronounceRequest[];
+  components: KanjiComponentRequest[];
+};

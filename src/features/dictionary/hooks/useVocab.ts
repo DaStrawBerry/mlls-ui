@@ -1,15 +1,17 @@
 import { PageResponse } from "@/api/client";
 // import { getVocab } from "@/api/language/vocab";
-import { VocabResponse } from "@/features/dictionary/types/vocab";
+import { VocabRequest, VocabResponse } from "@/features/dictionary/types/vocab";
 import {
   InfiniteData,
   useInfiniteQuery,
   UseInfiniteQueryResult,
+  useMutation,
   useQuery,
+  useQueryClient,
 } from "@tanstack/react-query";
 
 import { searchVocab } from "@/api/language/search";
-import { getVocabById } from "@/api/language/vocab";
+import { getVocabById, updateVocab } from "@/api/language/vocab";
 import { SearchVocabParams } from "@/features/dictionary/types/vocab";
 
 export type VocabInfiResult = UseInfiniteQueryResult<
@@ -38,5 +40,19 @@ export function useVocabDetail(id: string) {
     queryKey: ["vocabulary", id],
     queryFn: () => getVocabById(id),
     enabled: !!id,
+  });
+}
+
+export function useUpdateVocab() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: VocabRequest }) =>
+      updateVocab(id, body),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["vocab", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["vocab"] });
+      queryClient.invalidateQueries({ queryKey: ["language"] });
+    },
   });
 }

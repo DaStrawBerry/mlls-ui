@@ -103,11 +103,20 @@ export function SearchHeader({
   function handleSearch() {
     onSearch(params);
   }
+  function handleAdd() {
+    window.alert("TO DO");
+  }
 
   return (
     <View className="mb-4 gap-3">
       {/* Row 1 */}
       <View className="flex-row items-center gap-2">
+        <Pressable
+          onPress={handleAdd}
+          className="rounded-xl bg-gray-900 py-2 px-4"
+        >
+          <Ionicons name="add" size={20} color="white" />
+        </Pressable>
         <TextInput
           value={searchText}
           onChangeText={setSearchText}

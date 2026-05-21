@@ -1,4 +1,4 @@
-import { LanguageResponse, SearchAllParams } from "./japanese";
+import { JpLevel, LanguageResponse, SearchAllParams } from "./japanese";
 import type { KanjiComponentResponse } from "./kanji";
 
 export interface VocabComponentResponse {
@@ -19,3 +19,31 @@ export interface VocabResponse extends LanguageResponse {
 export interface SearchVocabParams extends SearchAllParams {
   reading?: string;
 }
+
+export type VocabComponentRequest = {
+  writing: string;
+  meaning?: string;
+  reading?: string;
+};
+
+export type VocabPronounceRequest = {
+  kanji: string;
+  type: "ONYOMI" | "KUNYOMI";
+  pronounce: string;
+};
+
+export type VocabRequest = {
+  tags: string[];
+  level?: JpLevel;
+  note?: string;
+  writing: string;
+  reading: string;
+  meaning: string;
+  kanjiComps: {
+    writing: string;
+    meaning?: string;
+    sino?: string;
+  }[];
+  vocabComps: VocabComponentRequest[];
+  pronounces?: VocabPronounceRequest[];
+};

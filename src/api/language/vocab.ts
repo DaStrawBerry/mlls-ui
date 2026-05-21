@@ -1,5 +1,6 @@
 import { apiFetch, PageResponse } from "@/api/client";
 import type { VocabResponse } from "@/features/dictionary/types/vocab";
+import { VocabRequest } from "@/features/dictionary/types/vocab";
 
 export function getVocab(
   page = 0,
@@ -12,4 +13,11 @@ export function getVocab(
 
 export function getVocabById(id: string) {
   return apiFetch<VocabResponse>(`/api/vocabulary/${id}`);
+}
+
+export function updateVocab(id: string, body: VocabRequest) {
+  return apiFetch<VocabResponse>(`/api/vocabulary/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
 }
