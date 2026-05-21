@@ -1,70 +1,73 @@
-import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
-import { Card } from "@/components/ui/Card";
-import { Loading } from "@/components/ui/Loading";
-import { KanjiCard } from "@/features/dictionary/components/KanjiCard";
-import { VocabularyCard } from "@/features/dictionary/components/VocabularyCard";
-import { useKanji } from "@/features/dictionary/hooks/useKanji";
+import LanguageDictionary, {
+  KanjiDictionary,
+  VocabDictionary,
+} from "@/features/dictionary/components/search/DictionaryDisplayer";
+import {
+  DictionaryMode,
+  SearchHeader,
+} from "@/features/dictionary/components/search/DictionarySearch";
+import { SearchAllParams } from "@/features/dictionary/types/japanese";
+import { SearchKanjiParams } from "@/features/dictionary/types/kanji";
+import { SearchVocabParams } from "@/features/dictionary/types/vocab";
 
 export default function DictionaryScreen() {
-  const { data: kanji, error, loading } = useKanji();
+  const [mode, setMode] = useState<DictionaryMode>("GLOBE");
 
-  if (loading) {
-    return <Loading label="Loading dictionary..." />;
-  }
+  const [languageParams, setLanguageParams] = useState<SearchAllParams>();
+  const [kanjiParams, setKanjiParams] = useState<SearchKanjiParams>();
+  const [vocabParams, setVocabParams] = useState<SearchVocabParams>();
 
-  if (error) {
-    return (
-      <View style={styles.screen}>
-        <Card title="Dictionary" subtitle="Kanji could not be loaded yet." />
-      </View>
-    );
+  function handleSearch(
+    params: SearchAllParams | SearchKanjiParams | SearchVocabParams,
+  ) {
+    if (mode === "GLOBE") {
+      setLanguageParams(params as SearchAllParams);
+    }
+
+    if (mode === "KANJI") {
+      setKanjiParams(params as SearchKanjiParams);
+    }
+
+    if (mode === "VOCAB") {
+      setVocabParams(params as SearchVocabParams);
+    }
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
-      <Text className="text-amber-500" style={styles.heading}>
-        Dictionary
-      </Text>
+    <View className="flex-1 bg-white px-4 pt-4">
+      <SearchHeader
+        mode={mode}
+        onModeChange={setMode}
+        onSearch={handleSearch}
+      />
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Kanji</Text>
-        {kanji.length > 0 ? (
-          kanji.map((item) => <KanjiCard key={item.id} kanji={item} />)
-        ) : (
-          <Card subtitle="No kanji found." />
-        )}
-      </View>
+      {mode === "GLOBE" && <LanguageDictionary params={languageParams} />}
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Vocabulary</Text>
-        <VocabularyCard />
-      </View>
-    </ScrollView>
+      {mode === "KANJI" && <KanjiDictionary params={kanjiParams} />}
+
+      {mode === "VOCAB" && <VocabDictionary params={vocabParams} />}
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  content: {
-    gap: 20,
-    padding: 24,
-  },
-  heading: {
-    // color: "#111827",
-    fontSize: 28,
-    fontWeight: "800",
-  },
-  screen: {
-    flex: 1,
-    padding: 24,
-  },
-  section: {
-    gap: 12,
-  },
-  sectionTitle: {
-    color: "#374151",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-});
+type ModeButtonProps = {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+};
+
+function ModeButton({ label, active, onPress }: ModeButtonProps) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      className={`rounded-full px-4 py-2 ${
+        active ? "bg-black" : "bg-gray-200"
+      }`}
+    >
+      <Text className={active ? "text-white" : "text-gray-700"}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
