@@ -1,5 +1,5 @@
 import { PageResponse } from "@/api/client";
-import { getKanjiById, updateKanji } from "@/api/language/kanji";
+import { createKanji, getKanjiById, updateKanji } from "@/api/language/kanji";
 import { searchKanji } from "@/api/language/search";
 import {
   KanjiRequest,
@@ -51,6 +51,18 @@ export function useUpdateKanji() {
       updateKanji(id, body),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["kanji", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["kanji"] });
+      queryClient.invalidateQueries({ queryKey: ["language"] });
+    },
+  });
+}
+
+export function useCreateKanji() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: KanjiRequest) => createKanji(body),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["kanji"] });
       queryClient.invalidateQueries({ queryKey: ["language"] });
     },

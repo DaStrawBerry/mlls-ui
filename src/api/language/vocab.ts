@@ -21,3 +21,10 @@ export function updateVocab(id: string, body: VocabRequest) {
     body: JSON.stringify(body),
   });
 }
+
+export function createVocab(body: VocabRequest) {
+  return apiFetch<VocabResponse>("/api/vocabulary", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}

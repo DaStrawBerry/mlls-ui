@@ -18,3 +18,10 @@ export function updateKanji(id: string, body: KanjiRequest) {
     body: JSON.stringify(body),
   });
 }
+
+export function createKanji(body: KanjiRequest) {
+  return apiFetch<KanjiResponse>("/api/kanji", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}

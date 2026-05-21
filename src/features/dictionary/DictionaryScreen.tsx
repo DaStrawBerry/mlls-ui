@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 
 import LanguageDictionary, {
   KanjiDictionary,
@@ -50,24 +50,5 @@ export default function DictionaryScreen() {
 
       {mode === "VOCAB" && <VocabDictionary params={vocabParams} />}
     </View>
-  );
-}
-
-type ModeButtonProps = {
-  label: string;
-  active: boolean;
-  onPress: () => void;
-};
-
-function ModeButton({ label, active, onPress }: ModeButtonProps) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      className={`rounded-full px-4 py-2 ${
-        active ? "bg-black" : "bg-gray-200"
-      }`}
-    >
-      <Text className={active ? "text-white" : "text-gray-700"}>{label}</Text>
-    </TouchableOpacity>
   );
 }

@@ -5,6 +5,7 @@ import { SearchVocabParams } from "@/features/dictionary/types/vocab";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, TextInput, View } from "react-native";
+import { AddLanguageButtons } from "../create/CreateBtn";
 
 export type DictionaryMode = "GLOBE" | "KANJI" | "VOCAB";
 
@@ -111,12 +112,9 @@ export function SearchHeader({
     <View className="mb-4 gap-3">
       {/* Row 1 */}
       <View className="flex-row items-center gap-2">
-        <Pressable
-          onPress={handleAdd}
-          className="rounded-xl bg-gray-900 py-2 px-4"
-        >
-          <Ionicons name="add" size={20} color="white" />
-        </Pressable>
+        <AddLanguageButtons
+          type={mode}
+        />
         <TextInput
           value={searchText}
           onChangeText={setSearchText}

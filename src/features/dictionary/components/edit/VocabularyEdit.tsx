@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 
 import { CenteredMessage } from "@/components/ui/CenteredMessage";
 import {
@@ -10,6 +10,11 @@ import {
 import type { VocabRequest } from "@/features/dictionary/types/vocab";
 import { FormTextInput } from "../FormTextInput";
 import { LanguageSection } from "../detail/LanguageSection";
+import { KanjiComponentEditor } from "../form/KanjiComponentEditor";
+import { SaveButton } from "../form/SaveButton";
+import { TagEditor } from "../form/TagEditor";
+import { VocabComponentEditor } from "../form/VocabComponentEditor";
+import { VocabularyForm } from "../form/VocabularyForm";
 
 type VocabularyEditProps = {
   id: string;
@@ -71,10 +76,21 @@ export function VocabularyEdit({ id }: VocabularyEditProps) {
   function handleSave() {
     if (!form) return;
 
+    const body: VocabRequest = {
+      ...form,
+      tags: form.tags.map((tag) => tag.trim()).filter(Boolean),
+      kanjiComps: form.kanjiComps.filter((component) =>
+        component.writing.trim(),
+      ),
+      vocabComps: form.vocabComps.filter((component) =>
+        component.writing.trim(),
+      ),
+    };
+
     updateMutation.mutate(
       {
         id,
-        body: form,
+        body,
       },
       {
         onSuccess: () => {
@@ -85,72 +101,13 @@ export function VocabularyEdit({ id }: VocabularyEditProps) {
   }
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 px-4">
-      <View className="py-4">
-        <Text className="mb-4 text-2xl font-bold text-gray-900">
-          Edit Vocabulary
-        </Text>
-
-        <LanguageSection title="Basic">
-          <FormTextInput
-            label="Writing"
-            value={form.writing}
-            onChangeText={(value) => updateField("writing", value)}
-          />
-
-          <FormTextInput
-            label="Reading"
-            value={form.reading}
-            onChangeText={(value) => updateField("reading", value)}
-          />
-
-          <FormTextInput
-            label="Meaning"
-            value={form.meaning}
-            onChangeText={(value) => updateField("meaning", value)}
-            multiline
-          />
-
-          <FormTextInput
-            label="Level"
-            value={form.level ?? ""}
-            onChangeText={(value) =>
-              updateField("level", value as VocabRequest["level"])
-            }
-          />
-
-          <FormTextInput
-            label="Note"
-            value={form.note ?? ""}
-            onChangeText={(value) => updateField("note", value)}
-            multiline
-          />
-
-          <FormTextInput
-            label="Tags"
-            value={form.tags.join(", ")}
-            onChangeText={(value) =>
-              updateField(
-                "tags",
-                value
-                  .split(",")
-                  .map((tag) => tag.trim())
-                  .filter(Boolean),
-              )
-            }
-          />
-        </LanguageSection>
-
-        <Pressable
-          onPress={handleSave}
-          disabled={updateMutation.isPending}
-          className="mt-4 rounded-xl bg-gray-900 px-4 py-4"
-        >
-          <Text className="text-center font-semibold text-white">
-            {updateMutation.isPending ? "Saving..." : "Save"}
-          </Text>
-        </Pressable>
-      </View>
-    </ScrollView>
+    <VocabularyForm
+      title="Edit Vocabulary"
+      form={form}
+      onChange={setForm}
+      onSubmit={handleSave}
+      submitting={updateMutation.isPending}
+      submitLabel="Save"
+    />
   );
 }

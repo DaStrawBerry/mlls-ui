@@ -6,9 +6,7 @@ import {
 import { KanjiRequest } from "@/features/dictionary/types/kanji";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
-import { FormTextInput } from "../FormTextInput";
-import { LanguageSection } from "../detail/LanguageSection";
+import { KanjiForm } from "../form/KanjiForm";
 
 type KanjiEditProps = {
   id: string;
@@ -84,10 +82,20 @@ export function KanjiEdit({ id }: KanjiEditProps) {
   function handleSave() {
     if (!form) return;
 
+    const body: KanjiRequest = {
+      ...form,
+      tags: form.tags.map((tag) => tag.trim()).filter(Boolean),
+      components: form.components.filter((component) =>
+        component.writing.trim(),
+      ),
+      kunyomi: cleanPronounceGroups(form.kunyomi),
+      onyomi: cleanPronounceGroups(form.onyomi),
+    };
+
     updateMutation.mutate(
       {
         id,
-        body: form,
+        body,
       },
       {
         onSuccess: () => {
@@ -97,82 +105,24 @@ export function KanjiEdit({ id }: KanjiEditProps) {
     );
   }
 
+  function cleanPronounceGroups(groups: KanjiRequest["kunyomi"]) {
+    return groups
+      .map((group) => ({
+        ...group,
+        pronounce: group.pronounce.trim(),
+        examples: group.examples.filter((example) => example.writing.trim()),
+      }))
+      .filter((group) => group.pronounce || group.examples.length);
+  }
+
   return (
-    <ScrollView className="flex-1 bg-gray-50 px-4">
-      <View className="py-4">
-        <Text className="mb-4 text-2xl font-bold text-gray-900">
-          Edit Kanji
-        </Text>
-
-        <LanguageSection title="Basic">
-          <FormTextInput
-            label="Writing"
-            value={form.writing}
-            onChangeText={(value) => updateField("writing", value)}
-          />
-
-          <FormTextInput
-            label="Sino"
-            value={form.sino ?? ""}
-            onChangeText={(value) => updateField("sino", value)}
-          />
-
-          <FormTextInput
-            label="Meaning"
-            value={form.meaning}
-            onChangeText={(value) => updateField("meaning", value)}
-            multiline
-          />
-
-          <FormTextInput
-            label="Stroke"
-            value={form.stroke ? String(form.stroke) : ""}
-            onChangeText={(value) =>
-              updateField("stroke", value ? Number(value) : undefined)
-            }
-            keyboardType="numeric"
-          />
-
-          <FormTextInput
-            label="Level"
-            value={form.level ?? ""}
-            onChangeText={(value) =>
-              updateField("level", value as KanjiRequest["level"])
-            }
-          />
-
-          <FormTextInput
-            label="Note"
-            value={form.note ?? ""}
-            onChangeText={(value) => updateField("note", value)}
-            multiline
-          />
-
-          <FormTextInput
-            label="Tags"
-            value={form.tags.join(", ")}
-            onChangeText={(value) =>
-              updateField(
-                "tags",
-                value
-                  .split(",")
-                  .map((tag) => tag.trim())
-                  .filter(Boolean),
-              )
-            }
-          />
-        </LanguageSection>
-
-        <Pressable
-          onPress={handleSave}
-          disabled={updateMutation.isPending}
-          className="mt-4 rounded-xl bg-gray-900 px-4 py-4"
-        >
-          <Text className="text-center font-semibold text-white">
-            {updateMutation.isPending ? "Saving..." : "Save"}
-          </Text>
-        </Pressable>
-      </View>
-    </ScrollView>
+    <KanjiForm
+      title="Edit Kanji"
+      form={form}
+      onChange={setForm}
+      onSubmit={handleSave}
+      submitting={updateMutation.isPending}
+      submitLabel="Save"
+    />
   );
 }
