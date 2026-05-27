@@ -10,8 +10,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-import { searchVocab } from "@/api/language/search";
-import { createVocab, getVocabById, updateVocab } from "@/api/language/vocab";
+import { searchVocab } from "@/api/dictionary/search";
+import { createVocab, getVocabById, updateVocab } from "@/api/dictionary/vocab";
 import { SearchVocabParams } from "@/features/dictionary/types/vocab";
 
 export type VocabInfiResult = UseInfiniteQueryResult<

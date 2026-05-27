@@ -1,6 +1,6 @@
 import { PageResponse } from "@/api/client";
-import { createKanji, getKanjiById, updateKanji } from "@/api/language/kanji";
-import { searchKanji } from "@/api/language/search";
+import { createKanji, getKanjiById, updateKanji } from "@/api/dictionary/kanji";
+import { searchKanji } from "@/api/dictionary/search";
 import {
   KanjiRequest,
   KanjiResponse,

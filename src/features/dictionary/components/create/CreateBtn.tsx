@@ -1,27 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Pressable, View } from "react-native";
-import { LanguageType } from "../../types/japanese";
+import { LanguageType, mapDictionaryModeToJpType } from "../../types/japanese";
+import { DictionaryMode } from "../../types/japanese";
 
-function mapToLanguageType(
-  value: string | any | undefined | null,
-): LanguageType {
-  switch (value) {
-    case "KANJI":
-      return "KANJI";
+type AddLanguageButtonsProps = {
+  type?: DictionaryMode;
+};
 
-    case "GRAMA":
-      return "GRAMMAR";
-
-    default:
-      return "VOCABULARY";
-  }
-}
-
-export function AddLanguageButtons(type: any) {
+export function AddLanguageButtons({ type }: AddLanguageButtonsProps){
   const router = useRouter();
 
-  const safeType: LanguageType = mapToLanguageType(type);
+  const safeType: LanguageType = mapDictionaryModeToJpType(type);
 
   return (
     <View className="flex-row gap-2">

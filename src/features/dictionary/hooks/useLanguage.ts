@@ -1,5 +1,5 @@
 import { PageResponse } from "@/api/client";
-import { searchAll } from "@/api/language/search";
+import { searchAll } from "@/api/dictionary/search";
 import {
   LanguageResponse,
   SearchAllParams,

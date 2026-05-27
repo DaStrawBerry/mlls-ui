@@ -14,29 +14,35 @@ import type {
 } from "@/features/dictionary/types/vocab";
 
 export function searchAll(page = 0, size = 20, params?: SearchAllParams) {
-  return apiFetch<PageResponse<LanguageResponse>>(`/api/search/knowledge`, {
-    method: "POST",
-    body: JSON.stringify({
-      page,
-      size,
-      ...emptyToNull(params),
-    }),
-  });
+  return apiFetch<PageResponse<LanguageResponse>>(
+    `/api/language/search/knowledge`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        page,
+        size,
+        ...emptyToNull(params),
+      }),
+    },
+  );
 }
 
 export function searchVocab(page = 0, size = 20, params?: SearchVocabParams) {
-  return apiFetch<PageResponse<VocabResponse>>(`/api/search/vocabulary`, {
-    method: "POST",
-    body: JSON.stringify({
-      page,
-      size,
-      ...emptyToNull(params),
-    }),
-  });
+  return apiFetch<PageResponse<VocabResponse>>(
+    `/api/language/search/vocabulary`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        page,
+        size,
+        ...emptyToNull(params),
+      }),
+    },
+  );
 }
 
 export function searchKanji(page = 0, size = 20, params?: SearchKanjiParams) {
-  return apiFetch<PageResponse<KanjiResponse>>(`/api/search/kanji`, {
+  return apiFetch<PageResponse<KanjiResponse>>(`/api/language/search/kanji`, {
     method: "POST",
     body: JSON.stringify({
       page,

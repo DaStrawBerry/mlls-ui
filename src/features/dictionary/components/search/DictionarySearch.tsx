@@ -1,13 +1,11 @@
 import { CycleSelector } from "@/components/ui/CycleSelector";
-import { JpLevel, SearchAllParams } from "@/features/dictionary/types/japanese";
+import { DictionaryMode, JpLevel, SearchAllParams } from "@/features/dictionary/types/japanese";
 import { SearchKanjiParams } from "@/features/dictionary/types/kanji";
 import { SearchVocabParams } from "@/features/dictionary/types/vocab";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, TextInput, View } from "react-native";
 import { AddLanguageButtons } from "../create/CreateBtn";
-
-export type DictionaryMode = "GLOBE" | "KANJI" | "VOCAB";
 
 type SearchField =
   | "writing"

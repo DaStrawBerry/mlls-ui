@@ -7,23 +7,23 @@ export function getVocab(
   size = 20,
 ): Promise<PageResponse<VocabResponse>> {
   return apiFetch<PageResponse<VocabResponse>>(
-    `/api/vocabulary?page=${page}&size=${size}`,
+    `/api/language/vocabulary?page=${page}&size=${size}`,
   );
 }
 
 export function getVocabById(id: string) {
-  return apiFetch<VocabResponse>(`/api/vocabulary/${id}`);
+  return apiFetch<VocabResponse>(`/api/language/vocabulary/${id}`);
 }
 
 export function updateVocab(id: string, body: VocabRequest) {
-  return apiFetch<VocabResponse>(`/api/vocabulary/${id}`, {
+  return apiFetch<VocabResponse>(`/api/language/vocabulary/${id}`, {
     method: "PUT",
     body: JSON.stringify(body),
   });
 }
 
 export function createVocab(body: VocabRequest) {
-  return apiFetch<VocabResponse>("/api/vocabulary", {
+  return apiFetch<VocabResponse>("/api/language/vocabulary", {
     method: "POST",
     body: JSON.stringify(body),
   });
