@@ -1,6 +1,4 @@
-import { Alert, Platform } from "react-native";
-
-type ConfirmActionOptions = {
+export type ConfirmActionOptions = {
   title: string;
   message?: string;
   confirmText?: string;
@@ -9,31 +7,21 @@ type ConfirmActionOptions = {
   onConfirm: () => void;
 };
 
-export function confirmAction({
-  title,
-  message,
-  confirmText = "OK",
-  cancelText = "Cancel",
-  destructive = false,
-  onConfirm,
-}: ConfirmActionOptions) {
-  if (Platform.OS === "web" && typeof window !== "undefined") {
-    const confirmed = window.confirm(message ? `${title}\n\n${message}` : title);
+type ConfirmActionHandler = (options: ConfirmActionOptions) => void;
 
-    if (confirmed) {
-      onConfirm();
-    }
+let confirmActionHandler: ConfirmActionHandler | null = null;
 
+export function setConfirmActionHandler(handler: ConfirmActionHandler | null) {
+  confirmActionHandler = handler;
+}
+
+export function confirmAction(options: ConfirmActionOptions) {
+  if (!confirmActionHandler) {
+    console.warn(
+      "confirmAction was called before ConfirmProvider was mounted.",
+    );
     return;
   }
 
-  Alert.alert(title, message, [
-    { text: cancelText, style: "cancel" },
-    {
-      text: confirmText,
-      style: destructive ? "destructive" : "default",
-      onPress: onConfirm,
-    },
-  ]);
+  confirmActionHandler(options);
 }
-
