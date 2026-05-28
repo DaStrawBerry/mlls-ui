@@ -3,3 +3,5 @@ export type LibSearchParams = {
 };
 
 export type LibMode = "SHELF" | "STSET" | "CELLS";
+
+export type LibGroupMode = Exclude<LibMode, "CELLS">;

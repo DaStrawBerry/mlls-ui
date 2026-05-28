@@ -1,12 +1,13 @@
 import { PageResponse } from "@/api/client";
-import { searchCells } from "@/api/library/cell";
+import { getCellById, searchCells } from "@/api/library/cell";
 import {
   InfiniteData,
   useInfiniteQuery,
   UseInfiniteQueryResult,
+  useQuery,
 } from "@tanstack/react-query";
-import { CellResponse } from "../types/cell";
-import { LibSearchParams } from "../types/memory";
+import type { CellResponse } from "../types/cell";
+import type { LibSearchParams } from "../types/memory";
 
 export type CellInfiResult = UseInfiniteQueryResult<
   InfiniteData<PageResponse<CellResponse>>,
@@ -25,5 +26,13 @@ export function useCellSearch(
     getNextPageParam: (lastPage) => {
       return lastPage.last ? undefined : lastPage.page + 1;
     },
+  });
+}
+
+export function useCellDetail(id: string) {
+  return useQuery({
+    queryKey: ["cell", id],
+    queryFn: () => getCellById(id),
+    enabled: !!id,
   });
 }
