@@ -32,9 +32,17 @@ export function createCells(body: CellBoxRequest) {
   });
 }
 
-export function deleteCells(ids: string[]) {
-  return apiFetch<void>("/api/cell", {
+export function deleteCell(id: string) {
+  return apiFetch<void>(`/api/cell/${id}`, {
     method: "DELETE",
-    body: JSON.stringify(ids),
   });
 }
+
+export function deleteCells(ids: string[]) {
+  return apiFetch<void>("/api/cell/bulk-delete", {
+    method: "POST",
+    body: JSON.stringify({ ids }),
+  });
+}
+
+

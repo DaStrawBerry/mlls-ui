@@ -3,7 +3,7 @@ import { SearchActionButton } from "@/components/ui/SearchActionButton";
 import { getErrorMessage, useToast } from "@/components/ui/Toast";
 import {
   useCellDetail,
-  useDeleteCells,
+  useDeleteCell,
 } from "@/features/library/hooks/useCell";
 import { useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
@@ -15,18 +15,18 @@ type CellDetailProps = {
 
 export function CellDetail({ id }: CellDetailProps) {
   const query = useCellDetail(id);
-  const deleteMutation = useDeleteCells();
+  const deleteMutation = useDeleteCell();
   const router = useRouter();
   const toast = useToast();
 
   function handleDeleteCell() {
     confirmAction({
       title: "Delete this cell?",
-      message: "This uses the cell delete/remove endpoint. Continue?",
+      message: "This uses the single cell delete endpoint. Continue?",
       confirmText: "Delete",
       destructive: true,
       onConfirm: () => {
-        deleteMutation.mutate([id], {
+        deleteMutation.mutate(id, {
           onSuccess: () => {
             toast.showSuccess("Cell deleted", "The cell was removed.");
             router.replace("/library");
@@ -82,3 +82,4 @@ export function CellDetail({ id }: CellDetailProps) {
     </ScrollView>
   );
 }
+

@@ -169,3 +169,4 @@ export function BoxDetail({ type, box }: BoxDetailProps) {
     </View>
   );
 }
+

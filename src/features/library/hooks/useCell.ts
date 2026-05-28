@@ -1,6 +1,7 @@
 import { PageResponse } from "@/api/client";
 import {
   createCells,
+  deleteCell,
   deleteCells,
   getCellById,
   searchCells,
@@ -61,6 +62,17 @@ export function useCreateCells() {
 
   return useMutation<CellBoxResponse, Error, CellBoxRequest>({
     mutationFn: (body) => createCells(body),
+    onSuccess: () => {
+      invalidateCellQueries(queryClient);
+    },
+  });
+}
+
+export function useDeleteCell() {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: (id) => deleteCell(id),
     onSuccess: () => {
       invalidateCellQueries(queryClient);
     },

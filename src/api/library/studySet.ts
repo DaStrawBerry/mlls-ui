@@ -39,9 +39,9 @@ export function addCellsToStudySet(id: string, cellIds: string[]) {
 }
 
 export function removeCellsFromStudySet(id: string, cellIds: string[]) {
-  return apiFetch<void>(`/api/memory/study-sets/${id}/cells`, {
-    method: "DELETE",
-    body: JSON.stringify(cellIds),
+  return apiFetch<void>(`/api/memory/study-sets/${id}/cells/remove`, {
+    method: "POST",
+    body: JSON.stringify({ ids: cellIds }),
   });
 }
 
@@ -50,3 +50,5 @@ export function deleteStudySet(id: string) {
     method: "DELETE",
   });
 }
+
+
