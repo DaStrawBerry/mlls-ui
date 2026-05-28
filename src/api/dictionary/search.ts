@@ -1,4 +1,4 @@
-import { apiFetch, PageResponse } from "@/api/client";
+import { apiFetch, emptyToNull, PageResponse } from "@/api/client";
 
 import type {
   LanguageResponse,
@@ -50,19 +50,4 @@ export function searchKanji(page = 0, size = 20, params?: SearchKanjiParams) {
       ...emptyToNull(params),
     }),
   });
-}
-
-type EmptyToNull<T extends object> = {
-  [K in keyof T]: T[K] extends "" | undefined ? null : T[K] | null;
-};
-
-function emptyToNull<T extends object>(obj?: T): EmptyToNull<T> | undefined {
-  if (!obj) return undefined;
-
-  return Object.fromEntries(
-    Object.entries(obj).map(([key, value]) => [
-      key,
-      value === "" || value === undefined ? null : value,
-    ]),
-  ) as EmptyToNull<T>;
 }

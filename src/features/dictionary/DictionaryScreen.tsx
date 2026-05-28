@@ -5,11 +5,11 @@ import LanguageDictionary, {
   KanjiDictionary,
   VocabDictionary,
 } from "@/features/dictionary/components/search/DictionaryDisplayer";
+import { SearchHeader } from "@/features/dictionary/components/search/DictionarySearch";
 import {
   DictionaryMode,
-  SearchHeader,
-} from "@/features/dictionary/components/search/DictionarySearch";
-import { SearchAllParams } from "@/features/dictionary/types/japanese";
+  SearchAllParams,
+} from "@/features/dictionary/types/japanese";
 import { SearchKanjiParams } from "@/features/dictionary/types/kanji";
 import { SearchVocabParams } from "@/features/dictionary/types/vocab";
 

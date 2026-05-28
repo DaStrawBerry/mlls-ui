@@ -40,3 +40,18 @@ export async function apiFetch<T>(
 
   return response.json() as Promise<T>;
 }
+
+type EmptyToNull<T extends object> = {
+  [K in keyof T]: T[K] extends "" | undefined ? null : T[K] | null;
+};
+
+export function emptyToNull<T extends object>(obj?: T): EmptyToNull<T> | undefined {
+  if (!obj) return undefined;
+
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [
+      key,
+      value === "" || value === undefined ? null : value,
+    ]),
+  ) as EmptyToNull<T>;
+}

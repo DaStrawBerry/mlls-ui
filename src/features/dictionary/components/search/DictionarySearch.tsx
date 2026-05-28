@@ -1,5 +1,9 @@
 import { CycleSelector } from "@/components/ui/CycleSelector";
-import { DictionaryMode, JpLevel, SearchAllParams } from "@/features/dictionary/types/japanese";
+import {
+  DictionaryMode,
+  JpLevel,
+  SearchAllParams,
+} from "@/features/dictionary/types/japanese";
 import { SearchKanjiParams } from "@/features/dictionary/types/kanji";
 import { SearchVocabParams } from "@/features/dictionary/types/vocab";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,35 +11,35 @@ import { useEffect, useMemo, useState } from "react";
 import { Pressable, TextInput, View } from "react-native";
 import { AddLanguageButtons } from "../create/CreateBtn";
 
-type SearchField =
-  | "writing"
-  | "meaning"
-  | "reading"
-  | "sino"
-  | "kunyomi"
-  | "onyomi";
-
-type LevelOption = "ALL" | JpLevel;
-
 const MODE_OPTIONS = [
   { label: "GLOBE", value: "GLOBE" },
   { label: "KANJI", value: "KANJI" },
   { label: "VOCAB", value: "VOCAB" },
 ] as const;
 
-const LEVEL_OPTIONS = [
-  { label: "ALL", value: "ALL" },
-  { label: " N1 ", value: "N1" },
-  { label: " N2 ", value: "N2" },
-  { label: " N3 ", value: "N3" },
-  { label: " N4 ", value: "N4" },
-  { label: " N5 ", value: "N5" },
-] as const;
+type BaseSearchKeys = "page" | "size" | "level";
 
-const FIELD_OPTIONS_BY_MODE: Record<
-  DictionaryMode,
-  readonly { label: string; value: SearchField }[]
-> = {
+type SearchAllField = Exclude<
+  Extract<keyof SearchAllParams, string>,
+  BaseSearchKeys
+>;
+type SearchKanjiField = Exclude<
+  Extract<keyof SearchKanjiParams, string>,
+  BaseSearchKeys
+>;
+type SearchVocabField = Exclude<
+  Extract<keyof SearchVocabParams, string>,
+  BaseSearchKeys
+>;
+
+type SearchField = SearchAllField | SearchKanjiField | SearchVocabField;
+
+type Option<T extends string> = {
+  label: string;
+  value: T;
+};
+
+const FIELD_OPTIONS_BY_MODE = {
   GLOBE: [
     { label: "WRITING", value: "writing" },
     { label: "MEANING", value: "meaning" },
@@ -52,7 +56,23 @@ const FIELD_OPTIONS_BY_MODE: Record<
     { label: "MEANING", value: "meaning" },
     { label: "READING", value: "reading" },
   ],
+} satisfies {
+  GLOBE: readonly Option<SearchAllField>[];
+  KANJI: readonly Option<SearchKanjiField>[];
+  VOCAB: readonly Option<SearchVocabField>[];
 };
+
+
+type LevelOption = "ALL" | JpLevel;
+
+const LEVEL_OPTIONS = [
+  { label: "ALL", value: "ALL" },
+  { label: " N1 ", value: "N1" },
+  { label: " N2 ", value: "N2" },
+  { label: " N3 ", value: "N3" },
+  { label: " N4 ", value: "N4" },
+  { label: " N5 ", value: "N5" },
+] as const satisfies readonly Option<LevelOption>[];
 
 type SearchHeaderProps = {
   mode: DictionaryMode;
@@ -110,9 +130,6 @@ export function SearchHeader({
     <View className="mb-4 gap-3">
       {/* Row 1 */}
       <View className="flex-row items-center gap-2">
-        <AddLanguageButtons
-          type={mode}
-        />
         <TextInput
           value={searchText}
           onChangeText={setSearchText}
@@ -122,10 +139,17 @@ export function SearchHeader({
           returnKeyType="search"
           className="flex-1 rounded-xl border border-gray-200 bg-white p-2 text-base text-gray-800"
         />
+        <Pressable
+          onPress={handleSearch}
+          className="rounded-xl bg-gray-900 py-2 px-4"
+        >
+          <Ionicons name="search" size={20} color="white" />
+        </Pressable>
       </View>
 
       {/* Row 2 */}
       <View className="flex-row justify-between">
+        <AddLanguageButtons type={mode} />
         <View className="flex-row gap-2">
           <CycleSelector
             label="Mode: "
@@ -150,12 +174,6 @@ export function SearchHeader({
             width={130}
           />
         </View>
-        <Pressable
-          onPress={handleSearch}
-          className="rounded-xl bg-gray-900 py-2 px-4"
-        >
-          <Ionicons name="search" size={20} color="white" />
-        </Pressable>
       </View>
     </View>
   );

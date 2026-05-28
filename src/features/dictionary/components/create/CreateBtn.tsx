@@ -24,7 +24,7 @@ export function AddLanguageButtons({ type }: AddLanguageButtonsProps){
             },
           })
         }
-        className="flex-1 rounded-xl bg-gray-900 px-4 py-3"
+        className="flex-1 rounded-xl bg-gray-900 p-2 px-3"
       >
         <Ionicons name="pencil" size={20} color="white" />
       </Pressable>
