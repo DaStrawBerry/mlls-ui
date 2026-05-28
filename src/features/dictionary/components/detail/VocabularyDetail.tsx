@@ -1,5 +1,6 @@
+import { getErrorMessage, useToast } from "@/components/ui/Toast";
 import { useRouter } from "expo-router";
-import { Alert, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 
 import { CenteredMessage } from "@/components/ui/CenteredMessage";
 import { Pill } from "@/components/ui/Pill";
@@ -19,6 +20,7 @@ export function VocabularyDetail({ id }: VocabularyDetailProps) {
   const query = useVocabDetail(id);
   const router = useRouter();
   const syncMutation = useSyncDictionaryCells();
+  const toast = useToast();
 
   if (query.isLoading) return <CenteredMessage text="Loading vocabulary..." />;
   if (query.isError) {
@@ -35,10 +37,13 @@ export function VocabularyDetail({ id }: VocabularyDetailProps) {
       },
       {
         onSuccess: (syncedCells) => {
-          Alert.alert("Sync completed", `${syncedCells.length} cell synced.`);
+          toast.showSuccess(
+            "Sync completed",
+            `${syncedCells.length} cell synced.`,
+          );
         },
         onError: (error) => {
-          Alert.alert("Sync failed", error.message);
+          toast.showError("Sync failed", getErrorMessage(error));
         },
       },
     );

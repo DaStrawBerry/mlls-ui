@@ -8,6 +8,7 @@ import {
   StudySetDisplayer,
 } from "./components/LibraryDisplayer";
 import { LibrarySearchHeader } from "./components/LibrarySearch";
+import { SelectedCellActions } from "./components/SelectedCellActions";
 import type { CellResponse } from "./types/cell";
 import type { LibMode, LibSearchParams } from "./types/memory";
 
@@ -69,6 +70,16 @@ export default function LibraryScreen() {
         onSearch={handleSearch}
         onToggleSelectMode={handleToggleSelectMode}
       />
+
+      {mode === "CELLS" && selectMode ? (
+        <View className="mb-3">
+          <SelectedCellActions
+            selectedIds={selection.selectedIds}
+            removeMode="delete-cells"
+            onDone={exitSelectMode}
+          />
+        </View>
+      ) : null}
 
       {mode === "SHELF" && <ShelfDisplayer params={shelfParams} />}
       {mode === "STSET" && <StudySetDisplayer params={stsetParams} />}

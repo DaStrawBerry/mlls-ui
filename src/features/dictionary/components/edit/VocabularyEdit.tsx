@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 
 import { CenteredMessage } from "@/components/ui/CenteredMessage";
+import { getErrorMessage, useToast } from "@/components/ui/Toast";
 import {
   useUpdateVocab,
   useVocabDetail,
@@ -18,6 +19,7 @@ export function VocabularyEdit({ id }: VocabularyEditProps) {
   const router = useRouter();
   const query = useVocabDetail(id);
   const updateMutation = useUpdateVocab();
+  const toast = useToast();
 
   const [form, setForm] = useState<VocabRequest | null>(null);
 
@@ -44,7 +46,11 @@ export function VocabularyEdit({ id }: VocabularyEditProps) {
       },
       {
         onSuccess: () => {
+          toast.showSuccess("Vocabulary saved", "Changes were saved.");
           router.back();
+        },
+        onError: (error) => {
+          toast.showError("Save failed", getErrorMessage(error));
         },
       },
     );

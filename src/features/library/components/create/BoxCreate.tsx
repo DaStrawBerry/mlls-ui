@@ -1,3 +1,4 @@
+import { getErrorMessage, useToast } from "@/components/ui/Toast";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 
@@ -31,15 +32,32 @@ function getTitle(type: LibGroupMode) {
   return "Add Study Set";
 }
 
+function getTypeLabel(type: LibGroupMode) {
+  if (type === "SHELF") return "Shelf";
+  return "Study set";
+}
+
 export function BoxCreate({ type }: BoxCreateProps) {
   const router = useRouter();
+  const toast = useToast();
   const createMutation = useCreateLibraryBox(type);
 
   const [form, setForm] = useState<BoxRequest>(() => createEmptyBoxForm());
 
   function handleCreate() {
-    createMutation.mutate(cleanBoxForm(form), {
+    const cleanForm = cleanBoxForm(form);
+
+    if (!cleanForm.name || !cleanForm.slug) {
+      toast.showWarning("Missing box info", "Name and slug are required.");
+      return;
+    }
+
+    createMutation.mutate(cleanForm, {
       onSuccess: (created) => {
+        toast.showSuccess(
+          `${getTypeLabel(type)} created`,
+          created.slug ? `${created.name} / ${created.slug}` : created.name,
+        );
         router.replace({
           pathname: "/library/[type]/[id]",
           params: {
@@ -50,6 +68,9 @@ export function BoxCreate({ type }: BoxCreateProps) {
             desc: created.desc ?? "",
           },
         });
+      },
+      onError: (error) => {
+        toast.showError("Create failed", getErrorMessage(error));
       },
     });
   }

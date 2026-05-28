@@ -1,6 +1,13 @@
 import { CenteredMessage } from "@/components/ui/CenteredMessage";
-import { useCellDetail } from "@/features/library/hooks/useCell";
+import { SearchActionButton } from "@/components/ui/SearchActionButton";
+import { getErrorMessage, useToast } from "@/components/ui/Toast";
+import {
+  useCellDetail,
+  useDeleteCells,
+} from "@/features/library/hooks/useCell";
+import { useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
+import { confirmAction } from "@/utils/confirmAction";
 
 type CellDetailProps = {
   id: string;
@@ -8,6 +15,29 @@ type CellDetailProps = {
 
 export function CellDetail({ id }: CellDetailProps) {
   const query = useCellDetail(id);
+  const deleteMutation = useDeleteCells();
+  const router = useRouter();
+  const toast = useToast();
+
+  function handleDeleteCell() {
+    confirmAction({
+      title: "Delete this cell?",
+      message: "This uses the cell delete/remove endpoint. Continue?",
+      confirmText: "Delete",
+      destructive: true,
+      onConfirm: () => {
+        deleteMutation.mutate([id], {
+          onSuccess: () => {
+            toast.showSuccess("Cell deleted", "The cell was removed.");
+            router.replace("/library");
+          },
+          onError: (error) => {
+            toast.showError("Delete failed", getErrorMessage(error));
+          },
+        });
+      },
+    });
+  }
 
   if (query.isLoading) {
     return <CenteredMessage text="Loading cell..." />;
@@ -27,6 +57,14 @@ export function CellDetail({ id }: CellDetailProps) {
     <ScrollView className="flex-1 bg-gray-50 px-4">
       <View className="py-4">
         <View className="rounded-2xl bg-white p-6">
+          <View className="mb-3 flex-row justify-end">
+            <SearchActionButton
+              action="remove"
+              disabled={deleteMutation.isPending}
+              onPress={handleDeleteCell}
+            />
+          </View>
+
           <Text className="text-center text-sm font-semibold text-gray-400">
             Memory Cell
           </Text>

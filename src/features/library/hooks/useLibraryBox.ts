@@ -1,6 +1,17 @@
 import { PageResponse } from "@/api/client";
-import { createShelf, getShelfCells } from "@/api/library/shelf";
-import { createStudySet, getStudySetCells } from "@/api/library/studySet";
+import {
+  createShelf,
+  deleteShelf,
+  getShelfCells,
+  moveCellsToShelf,
+} from "@/api/library/shelf";
+import {
+  addCellsToStudySet,
+  createStudySet,
+  deleteStudySet,
+  getStudySetCells,
+  removeCellsFromStudySet,
+} from "@/api/library/studySet";
 import type { BoxRequest, BoxResponse } from "@/features/library/types/box";
 import type { CellResponse } from "@/features/library/types/cell";
 import type { LibGroupMode } from "@/features/library/types/memory";
@@ -39,6 +50,13 @@ export function useLibraryBoxCells(
   });
 }
 
+function invalidateLibrary(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: ["shelf"] });
+  queryClient.invalidateQueries({ queryKey: ["stset"] });
+  queryClient.invalidateQueries({ queryKey: ["cells"] });
+  queryClient.invalidateQueries({ queryKey: ["library-box-cells"] });
+}
+
 export function useCreateLibraryBox(type: LibGroupMode) {
   const queryClient = useQueryClient();
 
@@ -51,8 +69,80 @@ export function useCreateLibraryBox(type: LibGroupMode) {
       return createStudySet(body);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shelf"] });
-      queryClient.invalidateQueries({ queryKey: ["stset"] });
+      invalidateLibrary(queryClient);
+    },
+  });
+}
+
+export function useDeleteLibraryBox(type: LibGroupMode) {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: (id) => {
+      if (type === "SHELF") {
+        return deleteShelf(id);
+      }
+
+      return deleteStudySet(id);
+    },
+    onSuccess: () => {
+      invalidateLibrary(queryClient);
+    },
+  });
+}
+
+export function useMoveCellsToShelf() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    BoxResponse,
+    Error,
+    {
+      shelfId: string;
+      cellIds: string[];
+    }
+  >({
+    mutationFn: ({ shelfId, cellIds }) => moveCellsToShelf(shelfId, cellIds),
+    onSuccess: () => {
+      invalidateLibrary(queryClient);
+    },
+  });
+}
+
+export function useAddCellsToStudySet() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    BoxResponse,
+    Error,
+    {
+      studySetId: string;
+      cellIds: string[];
+    }
+  >({
+    mutationFn: ({ studySetId, cellIds }) =>
+      addCellsToStudySet(studySetId, cellIds),
+    onSuccess: () => {
+      invalidateLibrary(queryClient);
+    },
+  });
+}
+
+export function useRemoveCellsFromStudySet() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    void,
+    Error,
+    {
+      studySetId: string;
+      cellIds: string[];
+    }
+  >({
+    mutationFn: ({ studySetId, cellIds }) =>
+      removeCellsFromStudySet(studySetId, cellIds),
+    onSuccess: () => {
+      invalidateLibrary(queryClient);
     },
   });
 }

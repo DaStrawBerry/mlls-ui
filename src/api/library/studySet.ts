@@ -37,3 +37,16 @@ export function addCellsToStudySet(id: string, cellIds: string[]) {
     body: JSON.stringify(cellIds),
   });
 }
+
+export function removeCellsFromStudySet(id: string, cellIds: string[]) {
+  return apiFetch<void>(`/api/memory/study-sets/${id}/cells`, {
+    method: "DELETE",
+    body: JSON.stringify(cellIds),
+  });
+}
+
+export function deleteStudySet(id: string) {
+  return apiFetch<void>(`/api/memory/study-sets/${id}`, {
+    method: "DELETE",
+  });
+}

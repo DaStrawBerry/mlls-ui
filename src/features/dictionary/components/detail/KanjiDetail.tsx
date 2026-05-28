@@ -1,5 +1,6 @@
+import { getErrorMessage, useToast } from "@/components/ui/Toast";
 import { useRouter } from "expo-router";
-import { Alert, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 
 import { useKanjiDetail } from "@/features/dictionary/hooks/useKanji";
 
@@ -21,6 +22,7 @@ export function KanjiDetail({ id }: KanjiDetailProps) {
   const query = useKanjiDetail(id);
   const router = useRouter();
   const syncMutation = useSyncDictionaryCells();
+  const toast = useToast();
 
   if (query.isLoading) return <CenteredMessage text="Loading kanji..." />;
   if (query.isError) return <CenteredMessage text="Failed to load kanji." />;
@@ -35,10 +37,13 @@ export function KanjiDetail({ id }: KanjiDetailProps) {
       },
       {
         onSuccess: (syncedCells) => {
-          Alert.alert("Sync completed", `${syncedCells.length} cell synced.`);
+          toast.showSuccess(
+            "Sync completed",
+            `${syncedCells.length} cell synced.`,
+          );
         },
         onError: (error) => {
-          Alert.alert("Sync failed", error.message);
+          toast.showError("Sync failed", getErrorMessage(error));
         },
       },
     );

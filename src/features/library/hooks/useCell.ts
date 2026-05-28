@@ -1,18 +1,37 @@
 import { PageResponse } from "@/api/client";
-import { getCellById, searchCells } from "@/api/library/cell";
+import {
+  createCells,
+  deleteCells,
+  getCellById,
+  searchCells,
+} from "@/api/library/cell";
 import {
   InfiniteData,
   useInfiniteQuery,
   UseInfiniteQueryResult,
+  useMutation,
   useQuery,
+  useQueryClient,
 } from "@tanstack/react-query";
-import type { CellResponse } from "../types/cell";
+import type {
+  CellBoxRequest,
+  CellBoxResponse,
+  CellResponse,
+} from "../types/cell";
 import type { LibSearchParams } from "../types/memory";
 
 export type CellInfiResult = UseInfiniteQueryResult<
   InfiniteData<PageResponse<CellResponse>>,
   Error
 >;
+
+function invalidateCellQueries(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: ["cell"] });
+  queryClient.invalidateQueries({ queryKey: ["cells"] });
+  queryClient.invalidateQueries({ queryKey: ["shelf"] });
+  queryClient.invalidateQueries({ queryKey: ["stset"] });
+  queryClient.invalidateQueries({ queryKey: ["library-box-cells"] });
+}
 
 export function useCellSearch(
   size = 20,
@@ -34,5 +53,27 @@ export function useCellDetail(id: string) {
     queryKey: ["cell", id],
     queryFn: () => getCellById(id),
     enabled: !!id,
+  });
+}
+
+export function useCreateCells() {
+  const queryClient = useQueryClient();
+
+  return useMutation<CellBoxResponse, Error, CellBoxRequest>({
+    mutationFn: (body) => createCells(body),
+    onSuccess: () => {
+      invalidateCellQueries(queryClient);
+    },
+  });
+}
+
+export function useDeleteCells() {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string[]>({
+    mutationFn: (ids) => deleteCells(ids),
+    onSuccess: () => {
+      invalidateCellQueries(queryClient);
+    },
   });
 }

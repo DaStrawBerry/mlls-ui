@@ -1,4 +1,5 @@
 import { CenteredMessage } from "@/components/ui/CenteredMessage";
+import { getErrorMessage, useToast } from "@/components/ui/Toast";
 import {
   useKanjiDetail,
   useUpdateKanji,
@@ -17,6 +18,7 @@ export function KanjiEdit({ id }: KanjiEditProps) {
   const router = useRouter();
   const query = useKanjiDetail(id);
   const updateMutation = useUpdateKanji();
+  const toast = useToast();
 
   const [form, setForm] = useState<KanjiRequest | null>(null);
 
@@ -43,7 +45,11 @@ export function KanjiEdit({ id }: KanjiEditProps) {
       },
       {
         onSuccess: () => {
+          toast.showSuccess("Kanji saved", "Changes were saved.");
           router.back();
+        },
+        onError: (error) => {
+          toast.showError("Save failed", getErrorMessage(error));
         },
       },
     );

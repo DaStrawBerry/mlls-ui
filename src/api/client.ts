@@ -38,14 +38,26 @@ export async function apiFetch<T>(
     throw new Error(message);
   }
 
-  return response.json() as Promise<T>;
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  const text = await response.text();
+
+  if (!text) {
+    return undefined as T;
+  }
+
+  return JSON.parse(text) as T;
 }
 
 type EmptyToNull<T extends object> = {
   [K in keyof T]: T[K] extends "" | undefined ? null : T[K] | null;
 };
 
-export function emptyToNull<T extends object>(obj?: T): EmptyToNull<T> | undefined {
+export function emptyToNull<T extends object>(
+  obj?: T,
+): EmptyToNull<T> | undefined {
   if (!obj) return undefined;
 
   return Object.fromEntries(

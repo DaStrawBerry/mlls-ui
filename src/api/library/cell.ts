@@ -31,3 +31,10 @@ export function createCells(body: CellBoxRequest) {
     body: JSON.stringify(body),
   });
 }
+
+export function deleteCells(ids: string[]) {
+  return apiFetch<void>("/api/cell", {
+    method: "DELETE",
+    body: JSON.stringify(ids),
+  });
+}

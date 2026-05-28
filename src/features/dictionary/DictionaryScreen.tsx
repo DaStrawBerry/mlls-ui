@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Alert, View } from "react-native";
+import { View } from "react-native";
 
-import { useMultiSelect } from "@/hooks/useMultiSelect";
+import { getErrorMessage, useToast } from "@/components/ui/Toast";
 import LanguageDictionary, {
   KanjiDictionary,
   VocabDictionary,
@@ -18,6 +18,7 @@ import {
 } from "@/features/dictionary/types/japanese";
 import { SearchKanjiParams } from "@/features/dictionary/types/kanji";
 import { SearchVocabParams } from "@/features/dictionary/types/vocab";
+import { useMultiSelect } from "@/hooks/useMultiSelect";
 
 export default function DictionaryScreen() {
   const [mode, setMode] = useState<DictionaryMode>("GLOBE");
@@ -30,6 +31,7 @@ export default function DictionaryScreen() {
 
   const selection = useMultiSelect<LanguageResponse>();
   const syncMutation = useSyncDictionaryCells();
+  const toast = useToast();
 
   function exitSelectMode() {
     selection.clearSelected();
@@ -93,10 +95,13 @@ export default function DictionaryScreen() {
       {
         onSuccess: (syncedCells) => {
           exitSelectMode();
-          Alert.alert("Sync completed", `${syncedCells.length} cells synced.`);
+          toast.showSuccess(
+            "Sync completed",
+            `${syncedCells.length} cells synced.`,
+          );
         },
         onError: (error) => {
-          Alert.alert("Sync failed", error.message);
+          toast.showError("Sync failed", getErrorMessage(error));
         },
       },
     );

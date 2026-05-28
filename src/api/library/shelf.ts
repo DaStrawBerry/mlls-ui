@@ -37,3 +37,9 @@ export function moveCellsToShelf(id: string, cellIds: string[]) {
     body: JSON.stringify(cellIds),
   });
 }
+
+export function deleteShelf(id: string) {
+  return apiFetch<void>(`/api/memory/shelves/${id}`, {
+    method: "DELETE",
+  });
+}

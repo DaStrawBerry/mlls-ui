@@ -1,3 +1,4 @@
+import { getErrorMessage, useToast } from "@/components/ui/Toast";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 
@@ -10,12 +11,14 @@ import { KanjiForm } from "../form/KanjiForm";
 export function KanjiCreate() {
   const router = useRouter();
   const createMutation = useCreateKanji();
+  const toast = useToast();
 
   const [form, setForm] = useState<KanjiRequest>(() => createEmptyKanjiForm());
 
   function handleCreate() {
     createMutation.mutate(cleanKanjiForm(form), {
       onSuccess: (created) => {
+        toast.showSuccess("Kanji created", created.writing);
         router.replace({
           pathname: "/language/[type]/[id]",
           params: {
@@ -23,6 +26,9 @@ export function KanjiCreate() {
             id: created.id,
           },
         });
+      },
+      onError: (error) => {
+        toast.showError("Create failed", getErrorMessage(error));
       },
     });
   }
