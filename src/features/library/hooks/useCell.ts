@@ -1,26 +1,26 @@
 import { PageResponse } from "@/api/client";
-import { searchShelves } from "@/api/library/shelf";
+import { searchCells } from "@/api/library/cell";
 import {
   InfiniteData,
   useInfiniteQuery,
   UseInfiniteQueryResult,
 } from "@tanstack/react-query";
-import { BoxResponse } from "../types/box";
+import { CellResponse } from "../types/cell";
 import { LibSearchParams } from "../types/memory";
 
-export type ShelfInfiResult = UseInfiniteQueryResult<
-  InfiniteData<PageResponse<BoxResponse>>,
+export type CellInfiResult = UseInfiniteQueryResult<
+  InfiniteData<PageResponse<CellResponse>>,
   Error
 >;
 
-export function useShelvesSearch(
+export function useCellSearch(
   size = 20,
   params?: LibSearchParams,
-): ShelfInfiResult {
-  return useInfiniteQuery<PageResponse<BoxResponse>>({
-    queryKey: ["shelf", size, params],
+): CellInfiResult {
+  return useInfiniteQuery<PageResponse<CellResponse>>({
+    queryKey: ["cells", size, params],
     queryFn: ({ pageParam = 0 }) =>
-      searchShelves(pageParam as number, size, params),
+      searchCells(pageParam as number, size, params),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
       return lastPage.last ? undefined : lastPage.page + 1;

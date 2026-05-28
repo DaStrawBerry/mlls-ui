@@ -1,49 +1,46 @@
-import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import { View } from "react-native";
 
-import { MemoryCellCard } from "@/features/library/components/MemoryCellCard";
-import { ShelfCard } from "@/features/library/components/ShelfCard";
-import { StudySetCard } from "@/features/library/components/StudySetCard";
+import {
+  CellsDisplayer,
+  ShelfDisplayer,
+  StudySetDisplayer,
+} from "./components/LibraryDisplayer";
+import { LibrarySearchHeader } from "./components/LibrarySearch";
+import type { LibMode, LibSearchParams } from "./types/memory";
 
 export default function LibraryScreen() {
+  const [mode, setMode] = useState<LibMode>("SHELF");
+
+  const [shelfParams, setShelfParams] = useState<LibSearchParams>();
+  const [stsetParams, setStSetParams] = useState<LibSearchParams>();
+  const [cellsParams, setCellsParams] = useState<LibSearchParams>();
+
+  function handleSearch(params: LibSearchParams) {
+    if (mode === "SHELF") {
+      setShelfParams(params);
+    }
+
+    if (mode === "STSET") {
+      setStSetParams(params);
+    }
+
+    if (mode === "CELLS") {
+      setCellsParams(params);
+    }
+  }
+
   return (
-    <ScrollView contentContainerStyle={styles.content}>
-      <Text style={styles.heading}>Library</Text>
+    <View className="flex-1 bg-white px-4 pt-4">
+      <LibrarySearchHeader
+        mode={mode}
+        onModeChange={setMode}
+        onSearch={handleSearch}
+      />
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Shelves</Text>
-        <ShelfCard />
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Study Sets</Text>
-        <StudySetCard />
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Memory Cells</Text>
-        <MemoryCellCard />
-      </View>
-    </ScrollView>
+      {mode === "SHELF" && <ShelfDisplayer params={shelfParams} />}
+      {mode === "STSET" && <StudySetDisplayer params={stsetParams} />}
+      {mode === "CELLS" && <CellsDisplayer params={cellsParams} />}
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    gap: 20,
-    padding: 24,
-  },
-  heading: {
-    color: "#111827",
-    fontSize: 28,
-    fontWeight: "800",
-  },
-  section: {
-    gap: 12,
-  },
-  sectionTitle: {
-    color: "#374151",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-});
