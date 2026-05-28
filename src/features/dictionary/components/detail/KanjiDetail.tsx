@@ -1,12 +1,13 @@
 import { useRouter } from "expo-router";
-import { ScrollView, Text, View } from "react-native";
+import { Alert, ScrollView, Text, View } from "react-native";
 
 import { useKanjiDetail } from "@/features/dictionary/hooks/useKanji";
 
 import { CenteredMessage } from "@/components/ui/CenteredMessage";
 import { Pill } from "@/components/ui/Pill";
 import { DetailLinkItem } from "@/features/dictionary/components/cards/DetailLinkItem";
-import { EditBtn } from "@/features/dictionary/components/edit/EditBtn";
+import { useSyncDictionaryCells } from "@/features/dictionary/hooks/useSync";
+import { DictionaryDetailActions } from "./DictionaryDetailActions";
 import { LanguageSection } from "./LanguageSection";
 import { LinkSection } from "./LinkSection";
 import { PronounceSection } from "./PronounceSection";
@@ -19,6 +20,7 @@ type KanjiDetailProps = {
 export function KanjiDetail({ id }: KanjiDetailProps) {
   const query = useKanjiDetail(id);
   const router = useRouter();
+  const syncMutation = useSyncDictionaryCells();
 
   if (query.isLoading) return <CenteredMessage text="Loading kanji..." />;
   if (query.isError) return <CenteredMessage text="Failed to load kanji." />;
@@ -26,13 +28,33 @@ export function KanjiDetail({ id }: KanjiDetailProps) {
 
   const kanji = query.data;
 
+  function handleSync() {
+    syncMutation.mutate(
+      {
+        kanjiIds: [id],
+      },
+      {
+        onSuccess: (syncedCells) => {
+          Alert.alert("Sync completed", `${syncedCells.length} cell synced.`);
+        },
+        onError: (error) => {
+          Alert.alert("Sync failed", error.message);
+        },
+      },
+    );
+  }
+
   return (
     <ScrollView className="flex-1 bg-gray-50 px-4">
       <View className="py-4">
         <View className="rounded-2xl bg-white p-6">
-          <View>
-            <EditBtn id={id} router={router} type="KANJI" />
-          </View>
+          <DictionaryDetailActions
+            id={id}
+            type="KANJI"
+            router={router}
+            syncing={syncMutation.isPending}
+            onSync={handleSync}
+          />
           <Text className="text-center text-7xl font-bold text-gray-900">
             {kanji.writing}
           </Text>
@@ -64,9 +86,10 @@ export function KanjiDetail({ id }: KanjiDetailProps) {
         <LinkSection
           title="Components"
           items={kanji.components}
+          keyExtractor={(component) => component.id}
           renderItem={(component) => (
             <DetailLinkItem
-              key={component.id}
+              compact
               primary={component.writing}
               secondary={component.sino}
               onPress={() =>

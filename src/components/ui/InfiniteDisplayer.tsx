@@ -1,7 +1,10 @@
+import { Ionicons } from "@expo/vector-icons";
 import type { ReactElement } from "react";
+import { useMemo } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Pressable,
   RefreshControl,
   Text,
   View,
@@ -24,11 +27,22 @@ export type InfiniteQuery<TItem> = {
   isRefetching: boolean;
 };
 
+export type InfiniteRenderItemMeta<TItem> = {
+  item: TItem;
+  selectMode: boolean;
+  selected: boolean;
+  toggleSelect: () => void;
+};
+
 type InfiniteDisplayerProps<TItem> = {
   query: InfiniteQuery<TItem>;
 
   keyExtractor: (item: TItem) => string;
-  renderItem: (item: TItem) => ReactElement;
+  renderItem: (item: TItem, meta: InfiniteRenderItemMeta<TItem>) => ReactElement;
+
+  selectMode?: boolean;
+  selectedIds?: readonly string[];
+  onToggleSelect?: (item: TItem) => void;
 
   loadingText?: string;
   emptyText?: string;
@@ -39,10 +53,44 @@ type InfiniteDisplayerProps<TItem> = {
   contentClassName?: string;
 };
 
+function SelectableFrame({
+  selected,
+  onPress,
+  children,
+}: {
+  selected: boolean;
+  onPress: () => void;
+  children: ReactElement;
+}) {
+  return (
+    <Pressable onPress={onPress} className="relative">
+      <View
+        className={[
+          "rounded-2xl border-2",
+          selected ? "border-blue-500 bg-blue-50" : "border-transparent",
+        ].join(" ")}
+      >
+        <View className="absolute right-3 top-3 z-10 rounded-full bg-white">
+          <Ionicons
+            name={selected ? "checkbox" : "square-outline"}
+            size={24}
+            color={selected ? "#2563EB" : "#9CA3AF"}
+          />
+        </View>
+
+        {children}
+      </View>
+    </Pressable>
+  );
+}
+
 export function InfiniteDisplayer<TItem>({
   query,
   keyExtractor,
   renderItem,
+  selectMode = false,
+  selectedIds = [],
+  onToggleSelect,
   loadingText = "Loading...",
   emptyText = "No results found.",
   errorTitle = "Failed to load data",
@@ -62,6 +110,7 @@ export function InfiniteDisplayer<TItem>({
   } = query;
 
   const items = data?.pages.flatMap((page) => page.content) ?? [];
+  const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
 
   const handleEndReached = () => {
     if (!hasNextPage || isFetchingNextPage) return;
@@ -112,7 +161,27 @@ export function InfiniteDisplayer<TItem>({
           </View>
         ) : null
       }
-      renderItem={({ item }) => renderItem(item)}
+      renderItem={({ item }) => {
+        const itemId = keyExtractor(item);
+        const selected = selectedIdSet.has(itemId);
+        const toggleSelect = () => onToggleSelect?.(item);
+        const renderedItem = renderItem(item, {
+          item,
+          selectMode,
+          selected,
+          toggleSelect,
+        });
+
+        if (!selectMode) {
+          return renderedItem;
+        }
+
+        return (
+          <SelectableFrame selected={selected} onPress={toggleSelect}>
+            {renderedItem}
+          </SelectableFrame>
+        );
+      }}
     />
   );
 }

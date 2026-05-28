@@ -34,6 +34,7 @@ type SearchActionButtonProps = {
   action: SearchActionButtonVariant;
   onPress: () => void;
   disabled?: boolean;
+  dropdownDisabled?: boolean;
   count?: number;
   showDropdownTrigger?: boolean;
   onDropdownPress?: () => void;
@@ -43,6 +44,7 @@ export function SearchActionButton({
   action,
   onPress,
   disabled,
+  dropdownDisabled,
   count,
   showDropdownTrigger = false,
   onDropdownPress,
@@ -52,11 +54,11 @@ export function SearchActionButton({
       {showDropdownTrigger ? (
         <Pressable
           onPress={onDropdownPress}
-          disabled={disabled}
+          disabled={dropdownDisabled}
           className={[
             "h-10 w-9 items-center justify-center border-r border-white/20",
             ACTION_CLASS[action],
-            disabled ? "opacity-50" : "",
+            dropdownDisabled ? "opacity-50" : "",
           ].join(" ")}
         >
           <Ionicons name="chevron-down" size={18} color="white" />

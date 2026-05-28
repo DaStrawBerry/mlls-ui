@@ -13,14 +13,20 @@ const MODE_OPTIONS = [
 
 type LibrarySearchHeaderProps = {
   mode: LibMode;
+  selectMode?: boolean;
+  selectedCount?: number;
   onModeChange: (mode: LibMode) => void;
   onSearch: (params: LibSearchParams) => void;
+  onToggleSelectMode?: () => void;
 };
 
 export function LibrarySearchHeader({
   mode,
+  selectMode = false,
+  selectedCount = 0,
   onModeChange,
   onSearch,
+  onToggleSelectMode,
 }: LibrarySearchHeaderProps) {
   const [searchText, setSearchText] = useState("");
 
@@ -62,7 +68,12 @@ export function LibrarySearchHeader({
       </View>
 
       <View className="flex-row justify-between">
-        <LibraryActionButtons mode={mode} />
+        <LibraryActionButtons
+          mode={mode}
+          selectMode={selectMode}
+          selectedCount={selectedCount}
+          onToggleSelectMode={onToggleSelectMode}
+        />
         <CycleSelector
           label="Mode: "
           value={mode}

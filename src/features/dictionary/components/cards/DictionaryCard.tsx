@@ -11,24 +11,27 @@ import {
 
 type LanguageCardProps = {
   language?: LanguageResponse | null;
+  selected?: boolean;
 };
 
-export function LanguageCard({ language }: LanguageCardProps) {
+export function LanguageCard({ language, selected }: LanguageCardProps) {
   if (!language) return <ErrorInfoCard />;
 
   return (
     <InfoCard
       item={mapLanguageToInfoCardItem(language)}
       emptyContentText="No meaning yet"
+      className={selected ? "mb-3 border-blue-500 bg-blue-50" : undefined}
     />
   );
 }
 
 type VocabCardProps = {
   vocab?: VocabResponse | null;
+  selected?: boolean;
 };
 
-export function VocabCard({ vocab }: VocabCardProps) {
+export function VocabCard({ vocab, selected }: VocabCardProps) {
   if (!vocab) return <ErrorInfoCard />;
 
   return (
@@ -37,15 +40,17 @@ export function VocabCard({ vocab }: VocabCardProps) {
       titleClassName="text-sm"
       subtitleClassName="text-sm"
       emptyContentText="No meaning yet"
+      className={selected ? "mb-3 border-blue-500 bg-blue-50" : undefined}
     />
   );
 }
 
 type KanjiCardProps = {
   kanji?: KanjiResponse | null;
+  selected?: boolean;
 };
 
-export function KanjiCard({ kanji }: KanjiCardProps) {
+export function KanjiCard({ kanji, selected }: KanjiCardProps) {
   if (!kanji) return <ErrorInfoCard />;
 
   return (
@@ -53,6 +58,9 @@ export function KanjiCard({ kanji }: KanjiCardProps) {
       item={mapKanjiToInfoCardItem(kanji)}
       titleClassName="text-2xl"
       emptyContentText="No meaning yet"
+      className={selected ? "mb-3 border-blue-500 bg-blue-50" : undefined}
     />
   );
 }
+
+

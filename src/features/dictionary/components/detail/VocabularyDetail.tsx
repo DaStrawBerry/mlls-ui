@@ -1,11 +1,12 @@
 import { useRouter } from "expo-router";
-import { ScrollView, Text, View } from "react-native";
+import { Alert, ScrollView, Text, View } from "react-native";
 
 import { CenteredMessage } from "@/components/ui/CenteredMessage";
 import { Pill } from "@/components/ui/Pill";
 import { DetailLinkItem } from "@/features/dictionary/components/cards/DetailLinkItem";
-import { EditBtn } from "@/features/dictionary/components/edit/EditBtn";
+import { useSyncDictionaryCells } from "@/features/dictionary/hooks/useSync";
 import { useVocabDetail } from "@/features/dictionary/hooks/useVocab";
+import { DictionaryDetailActions } from "./DictionaryDetailActions";
 import { LanguageSection } from "./LanguageSection";
 import { LinkSection } from "./LinkSection";
 import { TagList } from "./TagList";
@@ -17,6 +18,7 @@ type VocabularyDetailProps = {
 export function VocabularyDetail({ id }: VocabularyDetailProps) {
   const query = useVocabDetail(id);
   const router = useRouter();
+  const syncMutation = useSyncDictionaryCells();
 
   if (query.isLoading) return <CenteredMessage text="Loading vocabulary..." />;
   if (query.isError) {
@@ -26,13 +28,33 @@ export function VocabularyDetail({ id }: VocabularyDetailProps) {
 
   const vocab = query.data;
 
+  function handleSync() {
+    syncMutation.mutate(
+      {
+        vocabIds: [id],
+      },
+      {
+        onSuccess: (syncedCells) => {
+          Alert.alert("Sync completed", `${syncedCells.length} cell synced.`);
+        },
+        onError: (error) => {
+          Alert.alert("Sync failed", error.message);
+        },
+      },
+    );
+  }
+
   return (
     <ScrollView className="flex-1 bg-gray-50 px-4">
       <View className="py-4">
         <View className="rounded-2xl bg-white p-6">
-          <View>
-            <EditBtn id={id} router={router} type="VOCABULARY" />
-          </View>
+          <DictionaryDetailActions
+            id={id}
+            type="VOCABULARY"
+            router={router}
+            syncing={syncMutation.isPending}
+            onSync={handleSync}
+          />
           <Text className="text-center text-5xl font-bold text-gray-900">
             {vocab.writing}
           </Text>
@@ -65,9 +87,10 @@ export function VocabularyDetail({ id }: VocabularyDetailProps) {
         <LinkSection
           title="Kanji components"
           items={vocab.kanjiComponents}
+          keyExtractor={(component) => component.id}
           renderItem={(component) => (
             <DetailLinkItem
-              key={component.id}
+              compact
               primary={component.writing}
               secondary={component.sino}
               onPress={() =>
@@ -86,9 +109,10 @@ export function VocabularyDetail({ id }: VocabularyDetailProps) {
         <LinkSection
           title="Vocab components"
           items={vocab.vocabComponents}
+          keyExtractor={(component) => component.id}
           renderItem={(component) => (
             <DetailLinkItem
-              key={component.id}
+              compact
               primary={component.writing}
               secondary={component.reading}
               onPress={() =>
@@ -107,9 +131,10 @@ export function VocabularyDetail({ id }: VocabularyDetailProps) {
         <LinkSection
           title="Collocations"
           items={vocab.collocations}
+          keyExtractor={(collocation) => collocation.id}
           renderItem={(collocation) => (
             <DetailLinkItem
-              key={collocation.id}
+              compact
               primary={collocation.writing}
               secondary={collocation.reading}
               onPress={() =>

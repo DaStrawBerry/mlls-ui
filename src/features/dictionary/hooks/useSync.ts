@@ -2,11 +2,32 @@ import { syncKanji, syncVocab } from "@/api/dictionary/sync";
 import { moveCellsToShelf } from "@/api/library/shelf";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-type SyncToShelfInput = {
-  shelfId: string;
+type SyncDictionaryInput = {
   kanjiIds?: string[];
   vocabIds?: string[];
 };
+
+type SyncToShelfInput = SyncDictionaryInput & {
+  shelfId: string;
+};
+
+export function useSyncDictionaryCells() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ kanjiIds = [], vocabIds = [] }: SyncDictionaryInput) => {
+      const [kanjiCells, vocabCells] = await Promise.all([
+        kanjiIds.length ? syncKanji(kanjiIds) : Promise.resolve([]),
+        vocabIds.length ? syncVocab(vocabIds) : Promise.resolve([]),
+      ]);
+
+      return [...kanjiCells, ...vocabCells];
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cells"] });
+    },
+  });
+}
 
 export function useSyncDictionaryToShelf() {
   const queryClient = useQueryClient();

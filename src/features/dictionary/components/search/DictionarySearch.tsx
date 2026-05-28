@@ -1,4 +1,5 @@
 import { CycleSelector } from "@/components/ui/CycleSelector";
+import { SearchActionButton } from "@/components/ui/SearchActionButton";
 import {
   DictionaryMode,
   JpLevel,
@@ -8,10 +9,12 @@ import {
 import { SearchKanjiParams } from "@/features/dictionary/types/kanji";
 import { SearchVocabParams } from "@/features/dictionary/types/vocab";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useMemo, useState } from "react";
-import { Pressable, TextInput, View } from "react-native";
-import { SearchActionButton } from "@/components/ui/SearchActionButton";
 import { useRouter } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
+import { Pressable, Text, TextInput, View } from "react-native";
+
+export type DictionarySearchAction = "add" | "sync";
+
 const MODE_OPTIONS = [
   { label: "GLOBE", value: "GLOBE" },
   { label: "KANJI", value: "KANJI" },
@@ -76,16 +79,30 @@ const LEVEL_OPTIONS = [
 
 type SearchHeaderProps = {
   mode: DictionaryMode;
+  action: DictionarySearchAction;
+  selectMode: boolean;
+  selectedCount?: number;
+  syncing?: boolean;
   onModeChange: (mode: DictionaryMode) => void;
   onSearch: (
     params: SearchAllParams | SearchKanjiParams | SearchVocabParams,
   ) => void;
+  onActionToggle: () => void;
+  onSyncModeToggle: () => void;
+  onProceedSync: () => void;
 };
 
 export function SearchHeader({
   mode,
+  action,
+  selectMode,
+  selectedCount = 0,
+  syncing = false,
   onModeChange,
   onSearch,
+  onActionToggle,
+  onSyncModeToggle,
+  onProceedSync,
 }: SearchHeaderProps) {
   const router = useRouter();
 
@@ -124,20 +141,29 @@ export function SearchHeader({
   function handleSearch() {
     onSearch(params);
   }
-  function handleAdd() {
-  const safeType = mapDictionaryModeToJpType(mode);
 
-  router.push({
-    pathname: "/language/[type]/add",
-    params: {
-      type: safeType,
-    },
-  });
-}
+  function handleAdd() {
+    const safeType = mapDictionaryModeToJpType(mode);
+
+    router.push({
+      pathname: "/language/[type]/add",
+      params: {
+        type: safeType,
+      },
+    });
+  }
+
+  function handleActionPress() {
+    if (action === "add") {
+      handleAdd();
+      return;
+    }
+
+    onSyncModeToggle();
+  }
 
   return (
     <View className="mb-4 gap-3">
-      {/* Row 1 */}
       <View className="flex-row items-center gap-2">
         <TextInput
           value={searchText}
@@ -150,15 +176,24 @@ export function SearchHeader({
         />
         <Pressable
           onPress={handleSearch}
-          className="rounded-xl bg-gray-900 py-2 px-4"
+          disabled={syncing}
+          className="rounded-xl bg-gray-900 px-4 py-2 disabled:opacity-50"
         >
           <Ionicons name="search" size={20} color="white" />
         </Pressable>
       </View>
 
-      {/* Row 2 */}
       <View className="flex-row justify-between">
-        <SearchActionButton action="add" onPress={handleAdd} />
+        <SearchActionButton
+          action={action}
+          count={action === "sync" ? selectedCount : undefined}
+          disabled={syncing}
+          dropdownDisabled={syncing}
+          showDropdownTrigger
+          onDropdownPress={onActionToggle}
+          onPress={handleActionPress}
+        />
+
         <View className="flex-row gap-2">
           <CycleSelector
             label="Mode: "
@@ -184,6 +219,24 @@ export function SearchHeader({
           />
         </View>
       </View>
+
+      {selectMode ? (
+        <View className="flex-row items-center justify-between rounded-xl bg-blue-50 px-3 py-2">
+          <Text className="text-sm font-semibold text-blue-700">
+            {selectedCount} selected
+          </Text>
+
+          <Pressable
+            onPress={onProceedSync}
+            disabled={selectedCount === 0 || syncing}
+            className="rounded-xl bg-blue-600 px-4 py-2 disabled:opacity-50"
+          >
+            <Text className="text-sm font-bold text-white">
+              {syncing ? "Syncing..." : "Proceed sync"}
+            </Text>
+          </Pressable>
+        </View>
+      ) : null}
     </View>
   );
 }

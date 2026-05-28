@@ -13,6 +13,12 @@ import { CellCard } from "./cards/CellCard";
 import { ShelfCard } from "./cards/ShelfCard";
 import { StudySetCard } from "./cards/StudySetCard";
 
+type SelectableProps<TItem extends { id: string }> = {
+  selectMode?: boolean;
+  selectedIds?: readonly string[];
+  onToggleSelect?: (item: TItem) => void;
+};
+
 function BoxItemLink({
   type,
   item,
@@ -102,7 +108,14 @@ export function StudySetDisplayer({ params }: { params?: LibSearchParams }) {
   );
 }
 
-export function CellsDisplayer({ params }: { params?: LibSearchParams }) {
+export function CellsDisplayer({
+  params,
+  selectMode,
+  selectedIds,
+  onToggleSelect,
+}: {
+  params?: LibSearchParams;
+} & SelectableProps<CellResponse>) {
   const query = useCellSearch(20, params);
 
   return (
@@ -112,11 +125,16 @@ export function CellsDisplayer({ params }: { params?: LibSearchParams }) {
       loadingText="Loading cells..."
       errorTitle="Failed to load cells."
       errorMessage="Check your phone Wi-Fi connection. Or report to admin."
-      renderItem={(item) => (
-        <CellItemLink item={item}>
-          <CellCard cell={item} />
-        </CellItemLink>
-      )}
+      selectMode={selectMode}
+      selectedIds={selectedIds}
+      onToggleSelect={onToggleSelect}
+      renderItem={(item, meta) => {
+        const card = <CellCard cell={item} />;
+
+        if (meta.selectMode) return card;
+
+        return <CellItemLink item={item}>{card}</CellItemLink>;
+      }}
     />
   );
 }
