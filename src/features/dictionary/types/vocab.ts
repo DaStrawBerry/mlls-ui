@@ -39,11 +39,8 @@ export type VocabRequest = {
   writing: string;
   reading: string;
   meaning: string;
-  kanjiComps: {
-    writing: string;
-    meaning?: string;
-    sino?: string;
-  }[];
   vocabComps: VocabComponentRequest[];
   pronounces?: VocabPronounceRequest[];
 };
+
+

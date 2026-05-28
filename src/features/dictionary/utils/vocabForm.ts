@@ -8,7 +8,6 @@ export function createEmptyVocabForm(): VocabRequest {
     writing: "",
     reading: "",
     meaning: "",
-    kanjiComps: [],
     vocabComps: [],
     pronounces: [],
   };
@@ -21,11 +20,6 @@ export function mapVocabResponseToForm(data: {
   writing?: string;
   reading?: string;
   meaning?: string;
-  kanjiComponents?: {
-    writing?: string;
-    sino?: string;
-    meaning?: string;
-  }[];
   vocabComponents?: {
     writing?: string;
     reading?: string;
@@ -39,12 +33,6 @@ export function mapVocabResponseToForm(data: {
     writing: data.writing ?? "",
     reading: data.reading ?? "",
     meaning: data.meaning ?? "",
-    kanjiComps:
-      data.kanjiComponents?.map((component) => ({
-        writing: component.writing ?? "",
-        sino: component.sino ?? "",
-        meaning: component.meaning ?? "",
-      })) ?? [],
     vocabComps:
       data.vocabComponents?.map((component) => ({
         writing: component.writing ?? "",
@@ -63,13 +51,6 @@ export function cleanVocabForm(form: VocabRequest): VocabRequest {
     writing: form.writing.trim(),
     reading: form.reading.trim(),
     meaning: form.meaning.trim(),
-    kanjiComps: form.kanjiComps
-      .map((component) => ({
-        writing: component.writing.trim(),
-        sino: component.sino?.trim(),
-        meaning: component.meaning?.trim(),
-      }))
-      .filter((component) => component.writing),
     vocabComps: form.vocabComps
       .map((component) => ({
         writing: component.writing.trim(),

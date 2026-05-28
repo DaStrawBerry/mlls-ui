@@ -3,7 +3,6 @@ import { ScrollView, Text, View } from "react-native";
 import type { VocabRequest } from "../../types/vocab";
 import { FormTextInput } from "../FormTextInput";
 import { LanguageSection } from "../detail/LanguageSection";
-import { KanjiComponentEditor } from "./KanjiComponentEditor";
 import { SaveButton } from "./SaveButton";
 import { TagEditor } from "./TagEditor";
 
@@ -84,13 +83,6 @@ export function VocabularyForm({
           />
         </LanguageSection>
 
-        <LanguageSection title="Kanji components">
-          <KanjiComponentEditor
-            components={form.kanjiComps}
-            onChange={(kanjiComps) => updateField("kanjiComps", kanjiComps)}
-          />
-        </LanguageSection>
-
         <LanguageSection title="Vocab components">
           <VocabComponentEditor
             title="Vocab component"
@@ -108,3 +100,5 @@ export function VocabularyForm({
     </ScrollView>
   );
 }
+
+
