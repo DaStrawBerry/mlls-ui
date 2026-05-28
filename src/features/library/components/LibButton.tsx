@@ -1,6 +1,5 @@
-import { Ionicons } from "@expo/vector-icons";
+import { SearchActionButton } from "@/components/ui/SearchActionButton";
 import { useRouter } from "expo-router";
-import { Pressable, View } from "react-native";
 import type { LibMode } from "../types/memory";
 
 type LibraryActionButtonsProps = {
@@ -11,24 +10,27 @@ export function LibraryActionButtons({ mode }: LibraryActionButtonsProps) {
   const router = useRouter();
 
   if (mode === "CELLS") {
-    return <View />;
+    return (
+      <SearchActionButton
+        action="select"
+        onPress={() => {
+          // bước sau: bật select mode cho cell
+        }}
+      />
+    );
   }
 
   return (
-    <View className="flex-row gap-2">
-      <Pressable
-        onPress={() =>
-          router.push({
-            pathname: "/library/[type]/add",
-            params: {
-              type: mode,
-            },
-          })
-        }
-        className="rounded-xl bg-gray-900 p-2 px-3"
-      >
-        <Ionicons name="pencil" size={20} color="white" />
-      </Pressable>
-    </View>
+    <SearchActionButton
+      action="add"
+      onPress={() =>
+        router.push({
+          pathname: "/library/[type]/add",
+          params: {
+            type: mode,
+          },
+        })
+      }
+    />
   );
 }

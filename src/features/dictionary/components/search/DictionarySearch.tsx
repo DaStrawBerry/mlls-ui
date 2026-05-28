@@ -2,6 +2,7 @@ import { CycleSelector } from "@/components/ui/CycleSelector";
 import {
   DictionaryMode,
   JpLevel,
+  mapDictionaryModeToJpType,
   SearchAllParams,
 } from "@/features/dictionary/types/japanese";
 import { SearchKanjiParams } from "@/features/dictionary/types/kanji";
@@ -9,8 +10,8 @@ import { SearchVocabParams } from "@/features/dictionary/types/vocab";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, TextInput, View } from "react-native";
-import { AddLanguageButtons } from "../create/CreateBtn";
-
+import { SearchActionButton } from "@/components/ui/SearchActionButton";
+import { useRouter } from "expo-router";
 const MODE_OPTIONS = [
   { label: "GLOBE", value: "GLOBE" },
   { label: "KANJI", value: "KANJI" },
@@ -62,16 +63,15 @@ const FIELD_OPTIONS_BY_MODE = {
   VOCAB: readonly Option<SearchVocabField>[];
 };
 
-
 type LevelOption = "ALL" | JpLevel;
 
 const LEVEL_OPTIONS = [
   { label: "ALL", value: "ALL" },
-  { label: " N1 ", value: "N1" },
-  { label: " N2 ", value: "N2" },
-  { label: " N3 ", value: "N3" },
-  { label: " N4 ", value: "N4" },
-  { label: " N5 ", value: "N5" },
+  { label: " N1", value: "N1" },
+  { label: " N2", value: "N2" },
+  { label: " N3", value: "N3" },
+  { label: " N4", value: "N4" },
+  { label: " N5", value: "N5" },
 ] as const satisfies readonly Option<LevelOption>[];
 
 type SearchHeaderProps = {
@@ -87,6 +87,8 @@ export function SearchHeader({
   onModeChange,
   onSearch,
 }: SearchHeaderProps) {
+  const router = useRouter();
+
   const [level, setLevel] = useState<LevelOption>("ALL");
   const [searchText, setSearchText] = useState("");
   const [searchField, setSearchField] = useState<SearchField>("writing");
@@ -123,8 +125,15 @@ export function SearchHeader({
     onSearch(params);
   }
   function handleAdd() {
-    window.alert("TO DO");
-  }
+  const safeType = mapDictionaryModeToJpType(mode);
+
+  router.push({
+    pathname: "/language/[type]/add",
+    params: {
+      type: safeType,
+    },
+  });
+}
 
   return (
     <View className="mb-4 gap-3">
@@ -149,7 +158,7 @@ export function SearchHeader({
 
       {/* Row 2 */}
       <View className="flex-row justify-between">
-        <AddLanguageButtons type={mode} />
+        <SearchActionButton action="add" onPress={handleAdd} />
         <View className="flex-row gap-2">
           <CycleSelector
             label="Mode: "
