@@ -1,95 +1,122 @@
-import { Pressable, Text, View } from "react-native";
-
-import { FormTextInput } from "../FormTextInput"; 
+import { DetailLinkItem } from "../cards/DetailLinkItem";
+import { FormTextInput } from "../FormTextInput";
 import type { KanjiComponentRequest } from "../../types/kanji";
+import { FormItemCarousel, useFormItemSelection } from "./FormItemCarousel";
 
 type KanjiComponentEditorProps = {
   components: KanjiComponentRequest[];
   onChange: (components: KanjiComponentRequest[]) => void;
 };
 
+function createEmptyComponent(): KanjiComponentRequest {
+  return {
+    writing: "",
+    sino: "",
+    meaning: "",
+  };
+}
+
 export function KanjiComponentEditor({
   components,
   onChange,
 }: KanjiComponentEditorProps) {
-  function updateComponent(
-    index: number,
-    key: keyof KanjiComponentRequest,
-    value: string,
-  ) {
+  const selection = useFormItemSelection(components.length);
+
+  function saveComponent(index: number | null, component: KanjiComponentRequest) {
+    if (index === null) {
+      const nextComponents = [...components, component];
+      onChange(nextComponents);
+      selection.selectLastAfterAdd(nextComponents.length);
+      return;
+    }
+
     onChange(
-      components.map((component, currentIndex) =>
-        currentIndex === index
-          ? {
-              ...component,
-              [key]: value,
-            }
-          : component,
+      components.map((currentComponent, currentIndex) =>
+        currentIndex === index ? component : currentComponent,
       ),
     );
-  }
-
-  function addComponent() {
-    onChange([
-      ...components,
-      {
-        writing: "",
-        sino: "",
-        meaning: "",
-      },
-    ]);
+    selection.setSelectedIndex(index);
   }
 
   function removeComponent(index: number) {
-    onChange(components.filter((_, currentIndex) => currentIndex !== index));
+    const nextComponents = components.filter(
+      (_, currentIndex) => currentIndex !== index,
+    );
+    onChange(nextComponents);
+    selection.selectPreviousAfterRemove(nextComponents.length, index);
   }
 
   return (
-    <View>
-      {components.map((component, index) => (
-        <View key={index} className="mb-4 rounded-xl border border-gray-200 p-3">
-          <Text className="mb-3 font-bold text-gray-900">
-            Component {index + 1}
-          </Text>
-
+    <FormItemCarousel
+      items={components}
+      selectedIndex={selection.selectedIndex}
+      onSelectIndex={selection.setSelectedIndex}
+      createItem={createEmptyComponent}
+      onSaveItem={saveComponent}
+      onRemoveItem={removeComponent}
+      addLabel="Add component"
+      emptyText="No components yet. Add one if this kanji is built from smaller parts."
+      getEditorTitle={(_, index, mode) =>
+        mode === "add"
+          ? "Add component"
+          : `Editing component ${(index ?? 0) + 1}`
+      }
+      getRemoveConfirmTitle={(_, __, mode) =>
+        mode === "add" ? "Discard this component?" : "Remove this component?"
+      }
+      getRemoveConfirmMessage={(_, __, mode) =>
+        mode === "add"
+          ? "This closes the modal without adding the component."
+          : "This removes the component from the form only. The change is saved when you submit."
+      }
+      renderCard={(component, index, selected, onPress) => (
+        <DetailLinkItem
+          compact
+          scrollContent
+          primary={component.writing || `Component ${index + 1}`}
+          secondary={component.sino}
+          tertiary={component.meaning}
+          className={selected ? "border-blue-500 bg-blue-50" : ""}
+          onPress={onPress}
+        />
+      )}
+      renderEditor={(component, _, updateDraft) => (
+        <>
           <FormTextInput
             label="Writing"
             value={component.writing}
-            onChangeText={(value) => updateComponent(index, "writing", value)}
+            onChangeText={(value) =>
+              updateDraft({
+                ...component,
+                writing: value,
+              })
+            }
           />
 
           <FormTextInput
             label="Sino"
             value={component.sino ?? ""}
-            onChangeText={(value) => updateComponent(index, "sino", value)}
+            onChangeText={(value) =>
+              updateDraft({
+                ...component,
+                sino: value,
+              })
+            }
           />
 
           <FormTextInput
             label="Meaning"
             value={component.meaning ?? ""}
-            onChangeText={(value) => updateComponent(index, "meaning", value)}
+            onChangeText={(value) =>
+              updateDraft({
+                ...component,
+                meaning: value,
+              })
+            }
             multiline
           />
-
-          <Pressable
-            onPress={() => removeComponent(index)}
-            className="rounded-xl bg-red-50 px-3 py-2"
-          >
-            <Text className="text-center font-semibold text-red-600">
-              Remove component
-            </Text>
-          </Pressable>
-        </View>
-      ))}
-
-      <Pressable
-        onPress={addComponent}
-        className="rounded-xl bg-gray-100 px-3 py-3"
-      >
-        <Text className="text-center font-semibold text-gray-800">
-          + Add component
-        </Text>
-      </Pressable>
-    </View>
+        </>
+      )}
+    />
   );
 }

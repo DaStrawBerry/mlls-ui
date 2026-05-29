@@ -1,125 +1,222 @@
-import { Pressable, Text, View } from "react-native";
+import { Text } from "react-native";
 
 import type { KanjiPronounceRequest } from "@/features/dictionary/types/kanji";
+import { DetailLinkItem } from "../cards/DetailLinkItem";
 import { FormTextInput } from "../FormTextInput";
+import { FormItemCarousel, useFormItemSelection } from "./FormItemCarousel";
+
+type PronounceExample = KanjiPronounceRequest["examples"][number];
 
 type PronounceGroupEditorProps = {
   groups: KanjiPronounceRequest[];
   onChange: (groups: KanjiPronounceRequest[]) => void;
 };
 
+type ExampleEditorProps = {
+  examples: PronounceExample[];
+  onChange: (examples: PronounceExample[]) => void;
+};
+
+function createEmptyExample(): PronounceExample {
+  return {
+    writing: "",
+    reading: "",
+    meaning: "",
+  };
+}
+
+function createEmptyGroup(): KanjiPronounceRequest {
+  return {
+    pronounce: "",
+    examples: [],
+  };
+}
+
+function cloneGroup(group: KanjiPronounceRequest): KanjiPronounceRequest {
+  return {
+    ...group,
+    examples: group.examples.map((example) => ({ ...example })),
+  };
+}
+
+function ExampleEditor({ examples, onChange }: ExampleEditorProps) {
+  const selection = useFormItemSelection(examples.length);
+
+  function saveExample(index: number | null, example: PronounceExample) {
+    if (index === null) {
+      const nextExamples = [...examples, example];
+      onChange(nextExamples);
+      selection.selectLastAfterAdd(nextExamples.length);
+      return;
+    }
+
+    onChange(
+      examples.map((currentExample, currentIndex) =>
+        currentIndex === index ? example : currentExample,
+      ),
+    );
+    selection.setSelectedIndex(index);
+  }
+
+  function removeExample(index: number) {
+    const nextExamples = examples.filter(
+      (_, currentIndex) => currentIndex !== index,
+    );
+    onChange(nextExamples);
+    selection.selectPreviousAfterRemove(nextExamples.length, index);
+  }
+
+  return (
+    <FormItemCarousel
+      items={examples}
+      selectedIndex={selection.selectedIndex}
+      onSelectIndex={selection.setSelectedIndex}
+      createItem={createEmptyExample}
+      onSaveItem={saveExample}
+      onRemoveItem={removeExample}
+      addLabel="Add example"
+      emptyText="No examples yet. Add one if this reading needs examples."
+      getEditorTitle={(_, index, mode) =>
+        mode === "add" ? "Add example" : `Editing example ${(index ?? 0) + 1}`
+      }
+      getRemoveConfirmTitle={(_, __, mode) =>
+        mode === "add" ? "Discard this example?" : "Remove this example?"
+      }
+      getRemoveConfirmMessage={(_, __, mode) =>
+        mode === "add"
+          ? "This closes the modal without adding the example."
+          : "This removes the example from the form only. The change is saved when you submit."
+      }
+      renderCard={(example, index, selected, onPress) => (
+        <DetailLinkItem
+          compact
+          scrollContent
+          primary={example.writing || `Example ${index + 1}`}
+          secondary={example.reading}
+          tertiary={example.meaning}
+          className={selected ? "border-blue-500 bg-blue-50" : ""}
+          onPress={onPress}
+        />
+      )}
+      renderEditor={(example, _, updateDraft) => (
+        <>
+          <FormTextInput
+            label="Writing"
+            value={example.writing}
+            onChangeText={(value) =>
+              updateDraft({
+                ...example,
+                writing: value,
+              })
+            }
+          />
+
+          <FormTextInput
+            label="Reading"
+            value={example.reading ?? ""}
+            onChangeText={(value) =>
+              updateDraft({
+                ...example,
+                reading: value,
+              })
+            }
+          />
+
+          <FormTextInput
+            label="Meaning"
+            value={example.meaning ?? ""}
+            onChangeText={(value) =>
+              updateDraft({
+                ...example,
+                meaning: value,
+              })
+            }
+            multiline
+          />
+        </>
+      )}
+    />
+  );
+}
+
 export function PronounceGroupEditor({
   groups,
   onChange,
 }: PronounceGroupEditorProps) {
-  function updateGroup(
-    groupIndex: number,
-    key: keyof KanjiPronounceRequest,
-    value: KanjiPronounceRequest[keyof KanjiPronounceRequest],
-  ) {
+  const selection = useFormItemSelection(groups.length);
+
+  function saveGroup(index: number | null, group: KanjiPronounceRequest) {
+    if (index === null) {
+      const nextGroups = [...groups, group];
+      onChange(nextGroups);
+      selection.selectLastAfterAdd(nextGroups.length);
+      return;
+    }
+
     onChange(
-      groups.map((group, currentIndex) =>
-        currentIndex === groupIndex
-          ? {
-              ...group,
-              [key]: value,
-            }
-          : group,
+      groups.map((currentGroup, currentIndex) =>
+        currentIndex === index ? group : currentGroup,
       ),
     );
-  }
-
-  function addGroup() {
-    onChange([
-      ...groups,
-      {
-        pronounce: "",
-        examples: [],
-      },
-    ]);
+    selection.setSelectedIndex(index);
   }
 
   function removeGroup(groupIndex: number) {
-    onChange(groups.filter((_, currentIndex) => currentIndex !== groupIndex));
-  }
-
-  function addExample(groupIndex: number) {
-    onChange(
-      groups.map((group, currentIndex) =>
-        currentIndex === groupIndex
-          ? {
-              ...group,
-              examples: [
-                ...group.examples,
-                {
-                  writing: "",
-                  reading: "",
-                  meaning: "",
-                },
-              ],
-            }
-          : group,
-      ),
+    const nextGroups = groups.filter(
+      (_, currentIndex) => currentIndex !== groupIndex,
     );
-  }
-
-  function removeExample(groupIndex: number, exampleIndex: number) {
-    onChange(
-      groups.map((group, currentIndex) =>
-        currentIndex === groupIndex
-          ? {
-              ...group,
-              examples: group.examples.filter(
-                (_, currentExampleIndex) =>
-                  currentExampleIndex !== exampleIndex,
-              ),
-            }
-          : group,
-      ),
-    );
-  }
-
-  function updateExample(
-    groupIndex: number,
-    exampleIndex: number,
-    key: "writing" | "reading" | "meaning",
-    value: string,
-  ) {
-    onChange(
-      groups.map((group, currentGroupIndex) =>
-        currentGroupIndex === groupIndex
-          ? {
-              ...group,
-              examples: group.examples.map((example, currentExampleIndex) =>
-                currentExampleIndex === exampleIndex
-                  ? {
-                      ...example,
-                      [key]: value,
-                    }
-                  : example,
-              ),
-            }
-          : group,
-      ),
-    );
+    onChange(nextGroups);
+    selection.selectPreviousAfterRemove(nextGroups.length, groupIndex);
   }
 
   return (
-    <View>
-      {groups.map((group, groupIndex) => (
-        <View
-          key={groupIndex}
-          className="mb-4 rounded-xl border border-gray-200 p-3"
-        >
-          <Text className="mb-3 font-bold text-gray-900">
-            Pronounce group {groupIndex + 1}
-          </Text>
-
+    <FormItemCarousel
+      items={groups}
+      selectedIndex={selection.selectedIndex}
+      onSelectIndex={selection.setSelectedIndex}
+      createItem={createEmptyGroup}
+      cloneItem={cloneGroup}
+      onSaveItem={saveGroup}
+      onRemoveItem={removeGroup}
+      addLabel="Add pronounce group"
+      emptyText="No pronounce groups yet. Add kunyomi/onyomi data if available."
+      getEditorTitle={(_, index, mode) =>
+        mode === "add"
+          ? "Add pronounce group"
+          : `Editing pronounce group ${(index ?? 0) + 1}`
+      }
+      getRemoveConfirmTitle={(_, __, mode) =>
+        mode === "add"
+          ? "Discard this pronounce group?"
+          : "Remove this pronounce group?"
+      }
+      getRemoveConfirmMessage={(_, __, mode) =>
+        mode === "add"
+          ? "This closes the modal without adding the pronounce group."
+          : "This removes the pronounce group and its examples from the form only. The change is saved when you submit."
+      }
+      renderCard={(group, index, selected, onPress) => (
+        <DetailLinkItem
+          compact
+          scrollContent
+          primary={group.pronounce || `Pronounce ${index + 1}`}
+          secondary={`${group.examples.length} example${
+            group.examples.length === 1 ? "" : "s"
+          }`}
+          className={selected ? "border-blue-500 bg-blue-50" : ""}
+          onPress={onPress}
+        />
+      )}
+      renderEditor={(group, _, updateDraft) => (
+        <>
           <FormTextInput
             label="Pronounce"
             value={group.pronounce}
             onChangeText={(value) =>
-              updateGroup(groupIndex, "pronounce", value)
+              updateDraft({
+                ...group,
+                pronounce: value,
+              })
             }
           />
 
@@ -127,76 +224,17 @@ export function PronounceGroupEditor({
             Examples
           </Text>
 
-          {group.examples.map((example, exampleIndex) => (
-            <View key={exampleIndex} className="mb-3 rounded-xl bg-gray-50 p-3">
-              <Text className="mb-3 font-semibold text-gray-800">
-                Example {exampleIndex + 1}
-              </Text>
-
-              <FormTextInput
-                label="Writing"
-                value={example.writing}
-                onChangeText={(value) =>
-                  updateExample(groupIndex, exampleIndex, "writing", value)
-                }
-              />
-
-              <FormTextInput
-                label="Reading"
-                value={example.reading ?? ""}
-                onChangeText={(value) =>
-                  updateExample(groupIndex, exampleIndex, "reading", value)
-                }
-              />
-
-              <FormTextInput
-                label="Meaning"
-                value={example.meaning ?? ""}
-                onChangeText={(value) =>
-                  updateExample(groupIndex, exampleIndex, "meaning", value)
-                }
-                multiline
-              />
-
-              <Pressable
-                onPress={() => removeExample(groupIndex, exampleIndex)}
-                className="rounded-xl bg-red-50 px-3 py-2"
-              >
-                <Text className="text-center font-semibold text-red-600">
-                  Remove example
-                </Text>
-              </Pressable>
-            </View>
-          ))}
-
-          <Pressable
-            onPress={() => addExample(groupIndex)}
-            className="mb-3 rounded-xl bg-gray-100 px-3 py-3"
-          >
-            <Text className="text-center font-semibold text-gray-800">
-              + Add example
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => removeGroup(groupIndex)}
-            className="rounded-xl bg-red-50 px-3 py-2"
-          >
-            <Text className="text-center font-semibold text-red-600">
-              Remove pronounce group
-            </Text>
-          </Pressable>
-        </View>
-      ))}
-
-      <Pressable
-        onPress={addGroup}
-        className="rounded-xl bg-gray-100 px-3 py-3"
-      >
-        <Text className="text-center font-semibold text-gray-800">
-          + Add pronounce group
-        </Text>
-      </Pressable>
-    </View>
+          <ExampleEditor
+            examples={group.examples}
+            onChange={(examples) =>
+              updateDraft({
+                ...group,
+                examples,
+              })
+            }
+          />
+        </>
+      )}
+    />
   );
 }

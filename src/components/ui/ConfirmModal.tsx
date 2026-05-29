@@ -8,8 +8,9 @@ import {
   useMemo,
   useState,
 } from "react";
-import { Modal, Pressable, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
+import { FloatingModal } from "./FloatingModal";
 import {
   type ConfirmActionOptions,
   setConfirmActionHandler,
@@ -58,65 +59,58 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
     <ConfirmContext.Provider value={value}>
       {children}
 
-      <Modal
+      <FloatingModal
         visible={!!confirmState}
-        transparent
-        animationType="fade"
-        statusBarTranslucent
-        onRequestClose={handleCancel}
+        priority={1000}
+        placement="center"
+        contentClassName="w-full max-w-md rounded-3xl bg-white p-5 shadow-lg"
       >
-        <View className="flex-1 items-center justify-center bg-black/40 px-5">
-          <View className="w-full max-w-md rounded-3xl bg-white p-5 shadow-lg">
-            <View className="mb-4 flex-row items-start gap-3">
-              <View
-                className={[
-                  "h-11 w-11 items-center justify-center rounded-full",
-                  destructive ? "bg-red-50" : "bg-blue-50",
-                ].join(" ")}
-              >
-                <Ionicons
-                  name={destructive ? "warning" : "help-circle"}
-                  size={24}
-                  color={destructive ? "#DC2626" : "#2563EB"}
-                />
-              </View>
+        <View className="mb-4 flex-row items-start gap-3">
+          <View
+            className={[
+              "h-11 w-11 items-center justify-center rounded-full",
+              destructive ? "bg-red-50" : "bg-blue-50",
+            ].join(" ")}
+          >
+            <Ionicons
+              name={destructive ? "warning" : "help-circle"}
+              size={24}
+              color={destructive ? "#DC2626" : "#2563EB"}
+            />
+          </View>
 
-              <View className="min-w-0 flex-1">
-                <Text className="text-xl font-bold text-gray-950">
-                  {confirmState?.title}
-                </Text>
+          <View className="min-w-0 flex-1">
+            <Text className="text-xl font-bold text-gray-950">
+              {confirmState?.title}
+            </Text>
 
-                {confirmState?.message ? (
-                  <Text className="mt-2 text-base leading-6 text-gray-600">
-                    {confirmState.message}
-                  </Text>
-                ) : null}
-              </View>
-            </View>
-
-            <View className="flex-row justify-end gap-2">
-              <Pressable
-                onPress={handleCancel}
-                className="rounded-xl bg-gray-100 px-4 py-3 active:bg-gray-200"
-              >
-                <Text className="font-semibold text-gray-700">
-                  {cancelText}
-                </Text>
-              </Pressable>
-
-              <Pressable
-                onPress={handleConfirm}
-                className={[
-                  "rounded-xl px-4 py-3 active:opacity-80",
-                  destructive ? "bg-red-600" : "bg-blue-600",
-                ].join(" ")}
-              >
-                <Text className="font-bold text-white">{confirmText}</Text>
-              </Pressable>
-            </View>
+            {confirmState?.message ? (
+              <Text className="mt-2 text-base leading-6 text-gray-600">
+                {confirmState.message}
+              </Text>
+            ) : null}
           </View>
         </View>
-      </Modal>
+
+        <View className="flex-row justify-end gap-2">
+          <Pressable
+            onPress={handleCancel}
+            className="rounded-xl bg-gray-100 px-4 py-3 active:bg-gray-200"
+          >
+            <Text className="font-semibold text-gray-700">{cancelText}</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={handleConfirm}
+            className={[
+              "rounded-xl px-4 py-3 active:opacity-80",
+              destructive ? "bg-red-600" : "bg-blue-600",
+            ].join(" ")}
+          >
+            <Text className="font-bold text-white">{confirmText}</Text>
+          </Pressable>
+        </View>
+      </FloatingModal>
     </ConfirmContext.Provider>
   );
 }
