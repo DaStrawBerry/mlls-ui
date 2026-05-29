@@ -3,6 +3,7 @@ import { getErrorMessage, useToast } from "@/components/ui/Toast";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { confirmAction } from "@/utils/confirmAction";
+import { useRouter } from "expo-router";
 
 import {
   useAddCellsToStudySet,
@@ -13,6 +14,8 @@ import { useDeleteCells } from "../hooks/useCell";
 import type { BoxResponse } from "../types/box";
 import type { LibGroupMode } from "../types/memory";
 import { BoxPickerModal } from "./BoxPickerModal";
+import { ReviewStartModal } from "@/features/review/components/ReviewStartModal";
+import type { ReviewStartTarget } from "@/features/review/types/review";
 
 type RemoveMode = "none" | "delete-cells" | "remove-from-study-set";
 
@@ -41,9 +44,13 @@ export function SelectedCellActions({
   currentBoxId,
   removeMode = "none",
 }: SelectedCellActionsProps) {
+  const router = useRouter();
   const toast = useToast();
   const [pickerMode, setPickerMode] = useState<LibGroupMode | null>(null);
   const [selectedTarget, setSelectedTarget] = useState<SelectedTarget | null>(
+    null,
+  );
+  const [reviewTarget, setReviewTarget] = useState<ReviewStartTarget | null>(
     null,
   );
 
@@ -59,6 +66,34 @@ export function SelectedCellActions({
     addToStudySetMutation.isPending ||
     removeFromStudySetMutation.isPending ||
     deleteCellsMutation.isPending;
+
+
+  function handleOpenReview() {
+    if (!hasSelection) {
+      toast.showWarning("No cells selected", "Select at least one cell first.");
+      return;
+    }
+
+    setReviewTarget({
+      source: "cells",
+      ids: [...selectedIds],
+      title: `${selectedCount} selected cell${selectedCount === 1 ? "" : "s"}`,
+    });
+  }
+
+  function handleConfirmReview(size: number, target: ReviewStartTarget) {
+    setReviewTarget(null);
+
+    router.push({
+      pathname: "/review",
+      params: {
+        source: target.source,
+        ids: target.ids?.join(",") ?? "",
+        size: String(size),
+        title: target.title ?? "Selected cells",
+      },
+    });
+  }
 
   function handleTargetSelect(target: BoxResponse, mode: LibGroupMode) {
     setSelectedTarget({
@@ -210,6 +245,13 @@ export function SelectedCellActions({
 
       <View className="flex-row flex-wrap justify-end gap-2">
         <SearchActionButton
+          action="review"
+          count={selectedCount}
+          disabled={!hasSelection || busy}
+          onPress={handleOpenReview}
+        />
+
+        <SearchActionButton
           action="move"
           count={selectedCount}
           disabled={!hasSelection || busy}
@@ -280,7 +322,16 @@ export function SelectedCellActions({
         onClose={() => setPickerMode(null)}
         onSelect={handleTargetSelect}
       />
+
+      <ReviewStartModal
+        visible={!!reviewTarget}
+        target={reviewTarget}
+        onClose={() => setReviewTarget(null)}
+        onConfirm={handleConfirmReview}
+      />
     </View>
   );
 }
+
+
 

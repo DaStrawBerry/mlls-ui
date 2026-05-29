@@ -6,6 +6,7 @@ export type SearchActionButtonVariant =
   | "sync"
   | "move"
   | "remove"
+  | "review"
   | "select"
   | "cancel";
 
@@ -17,6 +18,7 @@ const ACTION_ICON: Record<
   sync: "sync",
   move: "arrow-forward",
   remove: "trash-outline",
+  review: "school-outline",
   select: "checkbox-outline",
   cancel: "close",
 };
@@ -26,6 +28,7 @@ const ACTION_CLASS: Record<SearchActionButtonVariant, string> = {
   sync: "bg-blue-600 active:bg-blue-500",
   move: "bg-indigo-600 active:bg-indigo-500",
   remove: "bg-red-600 active:bg-red-500",
+  review: "bg-emerald-600 active:bg-emerald-500",
   select: "bg-gray-900 active:bg-gray-700",
   cancel: "bg-gray-500 active:bg-gray-400",
 };
@@ -83,3 +86,5 @@ export function SearchActionButton({
     </View>
   );
 }
+
+

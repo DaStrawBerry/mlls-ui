@@ -1,5 +1,7 @@
 import { InfiniteDisplayer } from "@/components/ui/InfiniteDisplayer";
 import { SearchActionButton } from "@/components/ui/SearchActionButton";
+import { ReviewStartModal } from "@/features/review/components/ReviewStartModal";
+import type { ReviewStartTarget } from "@/features/review/types/review";
 import { getErrorMessage, useToast } from "@/components/ui/Toast";
 import { useMultiSelect } from "@/hooks/useMultiSelect";
 import { confirmAction } from "@/utils/confirmAction";
@@ -39,6 +41,9 @@ export function BoxDetail({ type, box }: BoxDetailProps) {
   const deleteMutation = useDeleteLibraryBox(type);
   const selection = useMultiSelect<CellResponse>();
   const [selectMode, setSelectMode] = useState(false);
+  const [reviewTarget, setReviewTarget] = useState<ReviewStartTarget | null>(
+    null,
+  );
 
   function exitSelectMode() {
     selection.clearSelected();
@@ -54,6 +59,28 @@ export function BoxDetail({ type, box }: BoxDetailProps) {
       }
 
       return next;
+    });
+  }
+
+  function handleOpenReview() {
+    setReviewTarget({
+      source: type === "SHELF" ? "shelf" : "study-set",
+      id: box.id,
+      title: box.name || box.slug || getTypeLabel(type),
+    });
+  }
+
+  function handleConfirmReview(size: number, target: ReviewStartTarget) {
+    setReviewTarget(null);
+
+    router.push({
+      pathname: "/review",
+      params: {
+        source: target.source,
+        id: target.id ?? "",
+        size: String(size),
+        title: target.title ?? getTypeLabel(type),
+      },
     });
   }
 
@@ -86,6 +113,11 @@ export function BoxDetail({ type, box }: BoxDetailProps) {
         <View className="py-4">
           <View className="rounded-2xl bg-white p-6">
             <View className="mb-3 flex-row justify-end gap-2">
+              <SearchActionButton
+                action="review"
+                onPress={handleOpenReview}
+              />
+
               <SearchActionButton
                 action={selectMode ? "cancel" : "select"}
                 count={selection.selectedCount}
@@ -166,7 +198,15 @@ export function BoxDetail({ type, box }: BoxDetailProps) {
           }}
         />
       </View>
+      <ReviewStartModal
+        visible={!!reviewTarget}
+        target={reviewTarget}
+        onClose={() => setReviewTarget(null)}
+        onConfirm={handleConfirmReview}
+      />
     </View>
   );
 }
+
+
 
